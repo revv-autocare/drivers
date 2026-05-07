@@ -1,0 +1,51 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Work order card</title>
+<link rel="stylesheet" href="_card.css">
+<style>
+  .wo { width:248px; background:#fff; border:1px solid var(--border-subtle); border-radius:6px; box-shadow:var(--shadow-sm); overflow:hidden; }
+  .wo .top { height:3px; }
+  .wo .body { padding:14px; }
+  .wo .head { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+  .wo .id { font-size:13px; font-weight:600; color:var(--fg-primary); line-height:18px; }
+  .wo .meta { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--fg-secondary); margin-top:6px; }
+  .wo .avs { display:flex; gap:4px; align-items:center; margin-top:8px; }
+  .wo .av { width:22px; height:22px; border-radius:50%; font-size:10px; font-weight:600; display:flex; align-items:center; justify-content:center; color:#fff; border:2px solid #fff; }
+  .wo .row2 { display:flex; align-items:center; justify-content:space-between; margin-top:10px; font-size:11px; color:var(--fg-secondary); }
+  .wo .pills { display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
+  .wo .pill { font-size:10px; padding:2px 7px; border-radius:5px; background:var(--color-warning-50); color:var(--color-warning-700); }
+  .wo .pill.gray { background:var(--color-neutral-100); color:var(--color-neutral-600); }
+</style></head>
+<body>
+<div class="card" style="display:flex; gap:14px; flex-wrap:wrap; background:var(--color-neutral-50)">
+  <div class="wo">
+    <div class="top" style="background:var(--color-brand-500)"></div>
+    <div class="body">
+      <div class="head"><div class="id">#0065 — ECU Diagnostics, Oil filter change, HVAC blend door actuator <span style="color:var(--fg-tertiary); font-weight:400">+3 more</span></div><span style="color:var(--fg-tertiary)">⋮</span></div>
+      <div class="meta">🚗 2018 Toyota Corolla</div>
+      <div class="avs"><div class="av" style="background:var(--color-error-500)">RO</div><div class="av" style="background:var(--color-warning-500)">YP</div><div class="av" style="background:var(--color-neutral-200); color:var(--fg-secondary)">+</div></div>
+      <div class="row2"><span>📅 12th June, 2022</span><span style="color:var(--fg-primary); font-weight:500">₦32,000.00</span></div>
+      <div class="pills"><span class="pill gray">Awaiting authorization</span><span class="pill gray">No payment recorded</span></div>
+    </div>
+  </div>
+  <div class="wo">
+    <div class="top" style="background:var(--color-warning-400)"></div>
+    <div class="body">
+      <div class="head"><div class="id">#0067 — Brake pad replacement <span style="color:var(--fg-tertiary); font-weight:400">+1 more</span></div><span style="color:var(--fg-tertiary)">⋮</span></div>
+      <div class="meta">🚗 2020 Honda Civic</div>
+      <div class="avs"><div class="av" style="background:var(--color-success-500)">AS</div></div>
+      <div class="row2"><span>📅 12th June, 2022</span><span style="color:var(--fg-primary); font-weight:500">₦18,500.00</span></div>
+      <div class="pills"><span class="pill">Requires authorization</span></div>
+    </div>
+  </div>
+  <div class="wo">
+    <div class="top" style="background:var(--color-success-500)"></div>
+    <div class="body">
+      <div class="head"><div class="id">#0061 — Annual service inspection</div><span style="color:var(--fg-tertiary)">⋮</span></div>
+      <div class="meta">🚗 2019 Mazda CX-5</div>
+      <div class="avs"><div class="av" style="background:var(--color-brand-500)">DT</div></div>
+      <div class="row2"><span>📅 10th June, 2022</span><span style="color:var(--color-success-700); font-weight:500">₦24,000.00 ✓</span></div>
+      <div class="pills"><span class="pill" style="background:var(--color-success-50); color:var(--color-success-700)">Paid</span></div>
+    </div>
+  </div>
+</div>
+</body></html>

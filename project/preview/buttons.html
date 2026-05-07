@@ -1,0 +1,39 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Buttons</title>
+<link rel="stylesheet" href="_card.css">
+<style>
+  .btn { font-family:var(--font-sans); font-weight:500; border-radius:8px; padding:10px 16px; font-size:14px; line-height:20px; cursor:pointer; display:inline-flex; align-items:center; gap:8px; border:1px solid transparent; transition:background .12s ease, color .12s ease, border-color .12s ease; }
+  .btn--primary { background:var(--color-brand-500); color:#fff; }
+  .btn--primary:hover { background:var(--color-brand-600); }
+  .btn--secondary { background:#fff; color:var(--color-brand-600); border-color:var(--color-brand-200); }
+  .btn--secondary:hover { background:var(--color-brand-25); }
+  .btn--tertiary { background:transparent; color:var(--color-brand-600); }
+  .btn--tertiary:hover { background:var(--color-brand-50); }
+  .btn--destructive { background:var(--color-error-500); color:#fff; }
+  .btn--ghost { background:#fff; color:var(--fg-primary); border-color:var(--border-default); }
+  .btn--ghost:hover { background:var(--color-neutral-50); }
+  .btn--disabled { background:var(--color-grey-100); color:var(--color-grey-400); cursor:not-allowed; }
+  .btn--sm { padding:7px 12px; font-size:13px; line-height:18px; }
+  .btn .ic { width:16px; height:16px; display:inline-block; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div style="font-size:13px; font-weight:600; margin-bottom:12px;">Buttons</div>
+  <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px;">
+    <button class="btn btn--primary"><span>+</span>New work order</button>
+    <button class="btn btn--secondary">Request a demo →</button>
+    <button class="btn btn--tertiary">Edit</button>
+    <button class="btn btn--ghost">Cancel</button>
+    <button class="btn btn--destructive">Delete</button>
+    <button class="btn btn--disabled" disabled>Disabled</button>
+  </div>
+  <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+    <button class="btn btn--primary btn--sm">Primary sm</button>
+    <button class="btn btn--secondary btn--sm">Secondary sm</button>
+    <button class="btn btn--ghost btn--sm">Ghost sm</button>
+    <button class="btn btn--primary" style="padding:10px;"><span style="width:16px;height:16px;display:inline-block;background:#fff;mask:url('../assets/icons/revv/plus.svg') center/contain no-repeat;-webkit-mask:url('../assets/icons/revv/plus.svg') center/contain no-repeat;"></span></button>
+  </div>
+  <div style="font-size:11px; color:var(--fg-tertiary); margin-top:14px;">Hover darkens one step. Focus ring 4px @ 18% brand. Radius 8px.</div>
+</div>
+</body></html>

@@ -1,0 +1,22 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Toggles</title>
+<link rel="stylesheet" href="_card.css">
+<style>
+  .toggle { width:44px; height:24px; background:var(--color-grey-200); border-radius:999px; position:relative; transition:background .15s ease; cursor:pointer; flex-shrink:0; }
+  .toggle::after { content:''; position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(16,24,40,.2); transition:left .15s ease; }
+  .toggle.on { background:var(--color-success-500); }
+  .toggle.on::after { left:22px; }
+  .toggle.focus { box-shadow:0 0 0 4px rgba(55,119,255,.18); }
+  .toggle.disabled { opacity:.5; cursor:not-allowed; }
+  .row-toggle { display:flex; align-items:center; gap:10px; font-size:13px; color:var(--fg-primary); }
+</style></head>
+<body>
+<div class="card" style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px 24px;">
+  <div class="row-toggle"><div class="toggle"></div><span>Default</span></div>
+  <div class="row-toggle"><div class="toggle on"></div><span>On</span></div>
+  <div class="row-toggle"><div class="toggle focus"></div><span>Focus / hover (off)</span></div>
+  <div class="row-toggle"><div class="toggle on focus"></div><span>Focus / hover (on)</span></div>
+  <div class="row-toggle"><div class="toggle disabled"></div><span style="color:var(--fg-tertiary)">Disabled (off)</span></div>
+  <div class="row-toggle"><div class="toggle on disabled"></div><span style="color:var(--fg-tertiary)">Disabled (on)</span></div>
+</div>
+</body></html>

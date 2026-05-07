@@ -1,0 +1,41 @@
+/* Shared baseline for preview/ design-system cards. */
+@import url('../colors_and_type.css');
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #ffffff;
+  font-family: var(--font-sans);
+  color: var(--fg-primary);
+}
+.card {
+  padding: 24px;
+  width: 100%;
+  min-height: 100%;
+}
+.row { display: flex; align-items: center; gap: 12px; }
+.col { display: flex; flex-direction: column; gap: 12px; }
+.swatch {
+  width: 64px; height: 64px; border-radius: 8px;
+  border: 1px solid rgba(16,24,40,0.08);
+  position: relative;
+}
+.swatch.sm { width: 44px; height: 44px; border-radius: 6px; }
+.label {
+  font-size: 11px;
+  color: var(--fg-secondary);
+  margin-top: 6px;
+  font-feature-settings: "tnum";
+}
+.label .name { color: var(--fg-primary); font-weight: 500; display: block; font-size: 12px; }
+.h-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-secondary);
+}
+.divider {
+  height: 1px; background: var(--border-subtle); width: 100%; margin: 8px 0;
+}

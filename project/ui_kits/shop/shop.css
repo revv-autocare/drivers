@@ -1,0 +1,99 @@
+/* Revv Shop UI kit — additional component styles */
+@import url('../../colors_and_type.css');
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg-canvas); }
+
+/* Sidebar */
+.rv-sidebar { width: 224px; background: var(--bg-sidebar); color: #fff; padding: 18px 14px; display: flex; flex-direction: column; gap: 8px; min-height: 100vh; flex-shrink: 0; }
+.rv-sidebar .logo { display:flex; align-items:center; gap:8px; padding: 8px 8px 18px 8px; }
+.rv-sidebar .nav-item { display:flex; align-items:center; gap:12px; padding: 10px 12px; border-radius:6px; color: #C8D4F0; cursor:pointer; font-size: 14px; font-weight: 500; border-left: 3px solid transparent; }
+.rv-sidebar .nav-item:hover { background: rgba(255,255,255,.06); color:#fff; }
+.rv-sidebar .nav-item.active { background: rgba(255,255,255,.06); color:#fff; border-left-color: var(--color-brand-500); }
+.rv-sidebar .nav-item img { width:18px; height:18px; filter: brightness(0) invert(1); opacity:.8; }
+.rv-sidebar .spacer { flex:1; }
+.rv-sidebar .branch { font-size: 12px; color: #8FA2D1; padding: 8px 12px; }
+
+/* Main */
+.rv-main { flex:1; display:flex; flex-direction:column; min-width:0; }
+.rv-topbar { background:#fff; padding: 14px 28px; border-bottom: 1px solid var(--border-subtle); display:flex; align-items:center; gap: 16px; }
+.rv-topbar .pagetitle { font-size: 18px; font-weight: 600; color: var(--fg-primary); }
+.rv-topbar .right { margin-left:auto; display:flex; align-items:center; gap: 14px; }
+.rv-topbar .bell { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--color-neutral-50); cursor:pointer; }
+.rv-topbar .user { display:flex; align-items:center; gap:10px; font-size:14px; font-weight:500; }
+.rv-topbar .av { width:32px; height:32px; border-radius:50%; background: var(--color-brand-500); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; }
+
+/* Page body */
+.rv-page { padding: 24px 28px; flex:1; overflow:auto; }
+
+/* Buttons */
+.rv-btn { font-family: var(--font-sans); font-weight:500; font-size:14px; padding: 10px 16px; border-radius:8px; border:1px solid transparent; cursor:pointer; display:inline-flex; align-items:center; gap:8px; }
+.rv-btn--primary { background: var(--color-brand-500); color:#fff; }
+.rv-btn--primary:hover { background: var(--color-brand-600); }
+.rv-btn--secondary { background:#fff; color: var(--color-brand-600); border-color: var(--color-brand-200); }
+.rv-btn--ghost { background:#fff; color: var(--fg-primary); border-color: var(--border-default); }
+.rv-btn--ghost:hover { background: var(--color-neutral-50); }
+
+/* Search */
+.rv-search { background:#fff; border:1px solid var(--border-default); border-radius:8px; padding: 8px 12px; display:flex; align-items:center; gap:8px; min-width: 280px; }
+.rv-search input { border:none; outline:none; flex:1; font-size:14px; font-family: var(--font-sans); color: var(--fg-primary); background:transparent; }
+.rv-search img { width:16px; height:16px; opacity:.6; }
+
+/* Filter pill button */
+.rv-filter { background:transparent; color: var(--color-brand-600); font-weight:500; font-size:14px; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:4px; }
+.rv-filter img { width:14px; height:14px; }
+
+/* Tabs */
+.rv-tabs { display:flex; gap: 28px; border-bottom: 1px solid var(--border-subtle); margin-bottom: 20px; }
+.rv-tabs .tab { padding: 10px 0; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-tertiary); cursor:pointer; border-bottom: 2px solid transparent; }
+.rv-tabs .tab.active { color: var(--color-brand-600); border-bottom-color: var(--color-brand-500); }
+
+/* Kanban */
+.rv-board { display:grid; grid-template-columns: repeat(4, minmax(248px, 1fr)); gap: 16px; }
+.rv-column { display:flex; flex-direction:column; gap: 10px; }
+.rv-col-head { display:flex; align-items:center; gap:8px; padding: 0 4px 4px; }
+.rv-col-head .label { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-tertiary); }
+.rv-col-head .count { font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 5px; background: var(--color-brand-50); color: var(--color-brand-700); }
+.rv-col-head.in-shop .label, .rv-col-head.in-shop .count { color: var(--fg-secondary); }
+.rv-col-head.in-shop .count { background: var(--color-neutral-100); }
+.rv-col-head.in-progress .count { background: var(--color-warning-50); color: var(--color-warning-700); }
+.rv-col-head.completed .count { background: var(--color-success-50); color: var(--color-success-700); }
+
+.rv-card { background:#fff; border: 1px solid var(--border-subtle); border-radius: 6px; box-shadow: var(--shadow-sm); overflow: hidden; cursor: pointer; transition: box-shadow .12s ease; }
+.rv-card:hover { box-shadow: var(--shadow-md); }
+.rv-card .accent { height: 3px; background: var(--color-brand-500); }
+.rv-card .body { padding: 14px; }
+.rv-card .head { display:flex; gap: 6px; align-items:flex-start; }
+.rv-card .id { font-size:13px; font-weight:600; line-height: 18px; flex:1; }
+.rv-card .id .more { color: var(--fg-tertiary); font-weight: 400; }
+.rv-card .menu { color: var(--fg-tertiary); cursor:pointer; padding: 2px; }
+.rv-card .meta { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--fg-secondary); margin-top:8px; }
+.rv-card .meta img { width:14px; height:14px; opacity:.7; }
+.rv-card .avs { display:flex; gap: 0; align-items:center; margin-top: 8px; }
+.rv-card .av { width: 22px; height: 22px; border-radius:50%; font-size:9px; font-weight:600; display:flex; align-items:center; justify-content:center; color:#fff; border: 2px solid #fff; margin-left: -4px; }
+.rv-card .av:first-child { margin-left: 0; }
+.rv-card .av.plus { background: var(--color-neutral-100); color: var(--fg-secondary); }
+.rv-card .row2 { display:flex; align-items:center; justify-content:space-between; margin-top: 10px; font-size: 12px; }
+.rv-card .row2 .date { color: var(--fg-secondary); display:flex; align-items:center; gap:5px; }
+.rv-card .row2 .price { font-weight:500; color: var(--fg-primary); }
+.rv-card .row2 .price.paid { color: var(--color-success-700); }
+.rv-card .pills { display:flex; gap:6px; margin-top: 10px; flex-wrap: wrap; }
+.rv-pill { font-size:10.5px; padding: 2px 8px; border-radius: 5px; font-weight: 500; }
+.rv-pill--gray { background: var(--color-neutral-100); color: var(--color-neutral-600); }
+.rv-pill--warning { background: var(--color-warning-50); color: var(--color-warning-700); }
+.rv-pill--success { background: var(--color-success-50); color: var(--color-success-700); }
+.rv-pill--error { background: var(--color-error-50); color: var(--color-error-700); }
+
+/* Customer table */
+.rv-table { width:100%; background:#fff; border:1px solid var(--border-subtle); border-radius:10px; overflow:hidden; border-collapse: separate; border-spacing: 0; }
+.rv-table th { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color: var(--fg-tertiary); text-align:left; padding: 12px 18px; background: var(--color-neutral-25); border-bottom:1px solid var(--border-subtle); }
+.rv-table td { padding: 14px 18px; font-size:14px; color: var(--fg-primary); border-bottom: 1px solid var(--border-subtle); }
+.rv-table tr:last-child td { border-bottom: none; }
+.rv-table tr:hover td { background: var(--color-neutral-25); }
+.rv-table .av { width: 32px; height:32px; border-radius:50%; background: var(--color-brand-500); color:#fff; font-size:12px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; margin-right:10px; vertical-align:middle; }
+.rv-table .em { color: var(--fg-secondary); font-size: 12px; }
+
+/* Toast */
+.rv-toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: #fff; border: 1px solid var(--color-success-200); border-left: 3px solid var(--color-success-500); border-radius: 8px; padding: 10px 14px; box-shadow: var(--shadow-lg); display:flex; align-items:center; gap:10px; font-size:13px; font-weight: 500; color: var(--color-success-800); z-index: 100; animation: slideDown .25s ease; }
+@keyframes slideDown { from { opacity:0; transform: translate(-50%, -10px); } to { opacity:1; transform: translate(-50%, 0); } }
+.rv-toast .check { width: 18px; height: 18px; }

@@ -1,0 +1,55 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Status colors</title>
+<link rel="stylesheet" href="_card.css"></head>
+<body>
+<div class="card">
+  <div style="font-size:13px; font-weight:600; margin-bottom:14px;">Semantic status · Error / Success / Warning</div>
+
+  <!-- Error -->
+  <div style="display:flex; align-items:center; gap:14px; margin-bottom:12px;">
+    <div style="width:88px; font-size:12px; font-weight:600; color:var(--color-error-600)">Error</div>
+    <div style="display:grid; grid-template-columns: repeat(7, 1fr); gap:6px; flex:1;">
+      <div style="background:#FEF3F2; height:30px; border-radius:5px; border:1px solid rgba(0,0,0,.04);"></div>
+      <div style="background:#FEE0DE; height:30px; border-radius:5px;"></div>
+      <div style="background:#FCB7B3; height:30px; border-radius:5px;"></div>
+      <div style="background:#F8847E; height:30px; border-radius:5px;"></div>
+      <div style="background:#EE5249; height:30px; border-radius:5px;"></div>
+      <div style="background:#DA2A20; height:30px; border-radius:5px;"></div>
+      <div style="background:#84120B; height:30px; border-radius:5px;"></div>
+    </div>
+    <div style="width:78px; font-family:var(--font-mono); font-size:11px; color:var(--fg-secondary); text-align:right;">DA2A20</div>
+  </div>
+
+  <!-- Success -->
+  <div style="display:flex; align-items:center; gap:14px; margin-bottom:12px;">
+    <div style="width:88px; font-size:12px; font-weight:600; color:var(--color-success-600)">Success</div>
+    <div style="display:grid; grid-template-columns: repeat(7, 1fr); gap:6px; flex:1;">
+      <div style="background:#E9FBEE; height:30px; border-radius:5px; border:1px solid rgba(0,0,0,.04);"></div>
+      <div style="background:#C9F4D4; height:30px; border-radius:5px;"></div>
+      <div style="background:#97E5AC; height:30px; border-radius:5px;"></div>
+      <div style="background:#5CD27A; height:30px; border-radius:5px;"></div>
+      <div style="background:#2DB752; height:30px; border-radius:5px;"></div>
+      <div style="background:#1F9A41; height:30px; border-radius:5px;"></div>
+      <div style="background:#0F5C26; height:30px; border-radius:5px;"></div>
+    </div>
+    <div style="width:78px; font-family:var(--font-mono); font-size:11px; color:var(--fg-secondary); text-align:right;">1F9A41</div>
+  </div>
+
+  <!-- Warning -->
+  <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
+    <div style="width:88px; font-size:12px; font-weight:600; color:var(--color-warning-600)">Warning</div>
+    <div style="display:grid; grid-template-columns: repeat(7, 1fr); gap:6px; flex:1;">
+      <div style="background:#FFF4E0; height:30px; border-radius:5px; border:1px solid rgba(0,0,0,.04);"></div>
+      <div style="background:#FFE2B0; height:30px; border-radius:5px;"></div>
+      <div style="background:#FFC771; height:30px; border-radius:5px;"></div>
+      <div style="background:#FFA838; height:30px; border-radius:5px;"></div>
+      <div style="background:#F58A0F; height:30px; border-radius:5px;"></div>
+      <div style="background:#C76C04; height:30px; border-radius:5px;"></div>
+      <div style="background:#6E3B00; height:30px; border-radius:5px;"></div>
+    </div>
+    <div style="width:78px; font-family:var(--font-mono); font-size:11px; color:var(--fg-secondary); text-align:right;">F58A0F</div>
+  </div>
+
+  <div style="font-size:11px; color:var(--fg-tertiary); border-top:1px solid var(--border-subtle); padding-top:10px;">Each scale has steps 25 / 50 / 100 / 200 / 300 / 400 / 500 / 600 / 700 / 800 / 900 — abbreviated above for legibility.</div>
+</div>
+</body></html>

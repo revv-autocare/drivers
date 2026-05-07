@@ -1,0 +1,540 @@
+/* Revv Driver Companion — V1 prototype styles
+   Based on tokens in colors_and_type.css */
+@import url('../../colors_and_type.css');
+
+* { box-sizing: border-box; }
+
+.dv-screen {
+  width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden;
+  font-family: var(--font-sans); color: var(--fg-primary);
+  background: var(--color-neutral-50);
+  display: flex; flex-direction: column;
+}
+.dv-screen > * { flex-shrink: 0; }
+.dv-screen > .dv-bnav { margin-top: auto; }
+.dv-screen::-webkit-scrollbar { display: none; }
+
+/* ─── Top bar (avatar / greet / bell) ──────────────────── */
+.dv-tbar {
+  display: flex; align-items: center; gap: 12px;
+  padding: 60px 20px 12px; background: #fff;
+}
+.dv-tbar .greet .lbl {
+  font-size: 11px; color: var(--fg-tertiary);
+  text-transform: uppercase; letter-spacing: .07em; font-weight: 600;
+}
+.dv-tbar .greet .name { font-size: 16px; font-weight: 600; margin-top: 2px; }
+.dv-tbar .iconbtn {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--color-neutral-50);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; flex-shrink: 0;
+}
+.dv-tbar .iconbtn .dot {
+  position: absolute; top: 8px; right: 9px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--color-error-500); border: 2px solid #fff;
+}
+
+.dv-av {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--color-brand-500); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600; flex-shrink: 0;
+}
+
+/* ─── Detail head (back arrow + title) ─────────────────── */
+.dv-dethead {
+  display: flex; align-items: center; gap: 12px;
+  padding: 60px 16px 14px; background: #fff;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.dv-dethead .back {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--color-neutral-50);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.dv-dethead h3 { margin: 0; font-size: 16px; font-weight: 600; }
+.dv-dethead .pill {
+  margin-left: auto; font-size: 11px; padding: 3px 10px;
+  border-radius: 5px; font-weight: 500;
+}
+
+/* ─── Hero (vehicle card) ──────────────────────────────── */
+.dv-hero {
+  margin: 0 16px 18px; padding: 20px;
+  background: linear-gradient(135deg, #1B2649 0%, #2B3F86 60%, var(--color-brand-500) 100%);
+  border-radius: 18px; color: #fff; position: relative; overflow: hidden;
+}
+.dv-hero::before {
+  content: ''; position: absolute; right: -40px; top: -40px;
+  width: 180px; height: 180px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 65%);
+}
+.dv-hero::after {
+  content: ''; position: absolute; right: 18px; bottom: 14px;
+  width: 60px; height: 60px; opacity: .14;
+  background: url('../../assets/brand/logo-mark.svg') no-repeat center / contain;
+}
+.dv-hero .lbl {
+  font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+  opacity: .82; font-weight: 600;
+}
+.dv-hero .nm {
+  font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin-top: 3px;
+}
+.dv-hero .plate {
+  display: inline-block; margin-top: 10px; padding: 4px 11px;
+  border-radius: 5px; background: rgba(255,255,255,.16);
+  font-size: 12px; font-weight: 600; letter-spacing: .05em;
+}
+.dv-hero .stats {
+  display: flex; gap: 22px; margin-top: 18px;
+  position: relative; z-index: 1;
+}
+.dv-hero .stat .v { font-size: 17px; font-weight: 600; }
+.dv-hero .stat .l { font-size: 11px; opacity: .78; margin-top: 1px; }
+
+/* ─── Section (generic) ────────────────────────────────── */
+.dv-section { padding: 0 16px; margin-bottom: 18px; }
+.dv-section h4 {
+  margin: 0 0 10px; font-size: 14px; font-weight: 600;
+  display: flex; align-items: center;
+}
+.dv-section h4 .more {
+  margin-left: auto; font-size: 12px; color: var(--color-brand-600);
+  font-weight: 500; cursor: pointer;
+}
+
+/* ─── Action grid (4 quick actions) ────────────────────── */
+.dv-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.dv-action {
+  background: #fff; border: 1px solid var(--border-subtle);
+  border-radius: 12px; padding: 12px 4px; text-align: center;
+  cursor: pointer; transition: transform .12s ease;
+}
+.dv-action:active { transform: scale(0.97); }
+.dv-action .ic {
+  width: 38px; height: 38px; margin: 0 auto 6px;
+  border-radius: 10px; background: var(--color-brand-50);
+  display: flex; align-items: center; justify-content: center;
+}
+.dv-action .ic img { width: 18px; height: 18px; }
+.dv-action .lbl {
+  font-size: 11px; font-weight: 500; line-height: 13px;
+  color: var(--fg-primary);
+}
+
+/* ─── Service / list item card ─────────────────────────── */
+.dv-item {
+  background: #fff; border: 1px solid var(--border-subtle);
+  border-radius: 12px; padding: 14px;
+  display: flex; align-items: flex-start; gap: 12px;
+  margin-bottom: 10px; cursor: pointer;
+  transition: border-color .12s ease;
+}
+.dv-item:hover { border-color: var(--color-brand-200); }
+.dv-item .badge {
+  width: 38px; height: 38px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.dv-item .ttl { font-size: 14px; font-weight: 600; line-height: 1.35; }
+.dv-item .meta { font-size: 12px; color: var(--fg-secondary); margin-top: 3px; }
+.dv-item .pill {
+  font-size: 10.5px; padding: 2px 8px; border-radius: 5px;
+  font-weight: 500; margin-top: 6px; display: inline-block;
+}
+.dv-item .price {
+  margin-left: auto; font-size: 14px; font-weight: 600;
+  color: var(--fg-primary); flex-shrink: 0;
+}
+
+/* ─── Pills ────────────────────────────────────────────── */
+.pill-success { background: var(--color-success-50); color: var(--color-success-700); }
+.pill-warning { background: var(--color-warning-50); color: var(--color-warning-700); }
+.pill-error   { background: var(--color-error-50);   color: var(--color-error-700); }
+.pill-brand   { background: var(--color-brand-50);   color: var(--color-brand-700); }
+.pill-neutral { background: var(--color-neutral-100); color: var(--color-neutral-700); }
+
+/* ─── Bottom nav ───────────────────────────────────────── */
+.dv-bnav {
+  position: sticky; bottom: 0; left: 0; right: 0; z-index: 5;
+  background: #fff; border-top: 1px solid var(--border-subtle);
+  display: flex; justify-content: space-around;
+  padding: 8px 0 24px; margin-top: auto;
+}
+.dv-bnav .nav {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 4px 12px; border-radius: 8px; cursor: pointer;
+}
+.dv-bnav .nav img { width: 22px; height: 22px; opacity: .55; }
+.dv-bnav .nav .lb { font-size: 10px; color: var(--fg-tertiary); font-weight: 500; }
+.dv-bnav .nav.on img { opacity: 1; }
+.dv-bnav .nav.on .lb { color: var(--color-brand-600); font-weight: 600; }
+
+/* ─── Search & filter chips ────────────────────────────── */
+.dv-searchbar {
+  margin: 0 16px 14px; padding: 11px 14px;
+  background: #fff; border: 1px solid var(--border-default);
+  border-radius: 10px; display: flex; align-items: center; gap: 10px;
+}
+.dv-searchbar input {
+  flex: 1; border: none; outline: none; background: transparent;
+  font-size: 14px; font-family: var(--font-sans); color: var(--fg-primary);
+}
+.dv-searchbar img { width: 16px; height: 16px; opacity: .55; }
+
+.dv-chips {
+  display: flex; gap: 8px; padding: 0 16px 14px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.dv-chips::-webkit-scrollbar { display: none; }
+.dv-chip {
+  flex-shrink: 0; padding: 7px 12px; border-radius: 8px;
+  font-size: 12px; font-weight: 500;
+  background: #fff; border: 1px solid var(--border-default);
+  color: var(--fg-secondary); cursor: pointer;
+  white-space: nowrap;
+}
+.dv-chip.on {
+  background: var(--color-brand-500); color: #fff;
+  border-color: var(--color-brand-500);
+}
+
+/* ─── Deal card ────────────────────────────────────────── */
+.dv-deals { padding: 0 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.dv-deals.single { grid-template-columns: 1fr; }
+
+.dv-deal {
+  background: #fff; border: 1px solid var(--border-subtle);
+  border-radius: 14px; overflow: hidden; cursor: pointer;
+  transition: box-shadow .12s ease, transform .12s ease;
+  display: flex; flex-direction: column;
+}
+.dv-deal:active { transform: scale(0.985); }
+.dv-deal:hover  { box-shadow: var(--shadow-md); }
+
+.dv-deal .img {
+  height: 80px; background: linear-gradient(135deg, var(--color-brand-50), var(--color-brand-100));
+  position: relative; display: flex; align-items: center; justify-content: center;
+}
+.dv-deal .img.svc-oil    { background: linear-gradient(135deg, #FFF4E5, #FFE4B5); }
+.dv-deal .img.svc-brake  { background: linear-gradient(135deg, #FEE4E2, #FECDCA); }
+.dv-deal .img.svc-tire   { background: linear-gradient(135deg, #E0EAFF, #C7D7FE); }
+.dv-deal .img.svc-ac     { background: linear-gradient(135deg, #E0F2FE, #B9E6FE); }
+.dv-deal .img.svc-insp   { background: linear-gradient(135deg, #DCFAE6, #ABEFC6); }
+.dv-deal .img.svc-detail { background: linear-gradient(135deg, #F4EBFF, #E9D7FE); }
+.dv-deal .img img { width: 32px; height: 32px; opacity: .58; }
+.dv-deal .img .ribbon {
+  position: absolute; top: 8px; left: 8px;
+  background: rgba(255,255,255,.92); padding: 3px 8px;
+  border-radius: 4px; font-size: 10px; font-weight: 600;
+  color: var(--fg-primary); letter-spacing: .03em;
+}
+.dv-deal .img .ending {
+  position: absolute; top: 8px; right: 8px;
+  background: var(--color-warning-500); color: #fff;
+  padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;
+}
+
+.dv-deal .body { padding: 12px 12px 14px; flex: 1; display: flex; flex-direction: column; }
+.dv-deal .shop { font-size: 11px; color: var(--fg-tertiary); font-weight: 500; }
+.dv-deal .offer {
+  font-size: 13.5px; font-weight: 600; line-height: 1.3;
+  margin-top: 3px; color: var(--fg-primary);
+}
+.dv-deal .price-row {
+  display: flex; align-items: baseline; gap: 6px; margin-top: 8px;
+}
+.dv-deal .price-now { font-size: 16px; font-weight: 700; color: var(--color-brand-600); }
+.dv-deal .price-was {
+  font-size: 12px; color: var(--fg-tertiary);
+  text-decoration: line-through;
+}
+.dv-deal .pct {
+  margin-left: auto; font-size: 11px; font-weight: 600;
+  color: var(--color-success-700); background: var(--color-success-50);
+  padding: 2px 7px; border-radius: 5px;
+}
+.dv-deal .meta-row {
+  display: flex; align-items: center; gap: 10px; margin-top: 10px;
+  font-size: 11px; color: var(--fg-tertiary);
+}
+.dv-deal .meta-row .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--fg-tertiary); }
+
+/* ─── Deal detail (expanded) ───────────────────────────── */
+.dv-detail-img {
+  height: 180px; position: relative;
+}
+.dv-detail-content { padding: 18px 18px 24px; background: #fff; }
+.dv-detail-content .shop { font-size: 12px; color: var(--fg-tertiary); font-weight: 500; }
+.dv-detail-content h2 {
+  margin: 4px 0 10px; font-size: 22px; font-weight: 700;
+  letter-spacing: -0.01em; line-height: 1.2;
+}
+.dv-detail-content .priceblock {
+  display: flex; align-items: baseline; gap: 10px;
+  padding: 14px 0; border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.dv-detail-content .priceblock .now { font-size: 28px; font-weight: 700; color: var(--color-brand-600); letter-spacing: -0.02em; }
+.dv-detail-content .priceblock .was { font-size: 14px; color: var(--fg-tertiary); text-decoration: line-through; }
+.dv-detail-content .priceblock .pct { margin-left: auto; font-size: 13px; font-weight: 600; padding: 4px 10px; border-radius: 6px; background: var(--color-success-50); color: var(--color-success-700); }
+
+.dv-detail-content .meta-list { margin: 16px 0; display: flex; flex-direction: column; gap: 12px; }
+.dv-detail-content .meta-row {
+  display: flex; align-items: flex-start; gap: 12px; font-size: 13px;
+}
+.dv-detail-content .meta-row .ic {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--color-neutral-50); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.dv-detail-content .meta-row .ic img { width: 14px; height: 14px; opacity: .7; }
+.dv-detail-content .meta-row .label { color: var(--fg-tertiary); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; font-weight: 600; }
+.dv-detail-content .meta-row .value { color: var(--fg-primary); font-weight: 500; margin-top: 2px; }
+
+.dv-detail-content .privacy {
+  margin-top: 12px; padding: 12px 14px;
+  background: var(--color-brand-50); border-radius: 10px;
+  font-size: 12px; color: var(--color-brand-800); line-height: 1.5;
+  display: flex; gap: 10px;
+}
+.dv-detail-content .privacy .ic { color: var(--color-brand-600); flex-shrink: 0; }
+
+/* ─── Bottom action bar (sticky inside frame) ──────────── */
+.dv-actbar {
+  padding: 14px 16px;
+  border-top: 1px solid var(--border-subtle);
+  background: #fff; display: flex; gap: 10px;
+  position: sticky; bottom: 0; z-index: 4;
+}
+.dv-btn {
+  font-family: var(--font-sans); font-weight: 600; font-size: 14px;
+  padding: 14px 18px; border-radius: 10px; border: none;
+  cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+.dv-btn--primary {
+  background: var(--color-brand-500); color: #fff; flex: 1;
+  box-shadow: 0 1px 2px rgba(16,24,40,.05);
+}
+.dv-btn--primary:hover { background: var(--color-brand-600); }
+.dv-btn--primary:disabled { background: var(--color-neutral-200); color: var(--fg-tertiary); cursor: not-allowed; box-shadow: none; }
+.dv-btn--secondary {
+  background: #fff; color: var(--fg-primary);
+  border: 1px solid var(--border-default);
+}
+.dv-btn--ghost-icon {
+  background: var(--color-neutral-50); color: var(--fg-secondary);
+  border: none; padding: 14px; width: 50px;
+}
+
+/* ─── Confirmation screen ──────────────────────────────── */
+.dv-confirm {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 60px 32px 40px;
+  background: linear-gradient(180deg, var(--color-brand-50) 0%, #fff 60%);
+  text-align: center;
+}
+.dv-confirm .badge {
+  width: 88px; height: 88px; border-radius: 50%;
+  background: var(--color-brand-500); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 24px rgba(55,119,255,.35);
+  animation: confirmPop .4s ease both;
+}
+@keyframes confirmPop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.08); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.dv-confirm h2 { margin: 0 0 10px; font-size: 24px; font-weight: 700; letter-spacing: -0.01em; }
+.dv-confirm p { margin: 0 0 24px; font-size: 15px; color: var(--fg-secondary); line-height: 1.5; max-width: 280px; }
+
+.dv-handshake-card {
+  background: #fff; border: 1px solid var(--border-subtle);
+  border-radius: 14px; padding: 16px; margin-top: 8px;
+  text-align: left; width: 100%;
+  box-shadow: var(--shadow-sm);
+}
+.dv-handshake-card .step {
+  display: flex; gap: 12px; padding: 8px 0;
+  align-items: flex-start;
+}
+.dv-handshake-card .step .num {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--color-brand-100); color: var(--color-brand-700);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+}
+.dv-handshake-card .step.done .num { background: var(--color-success-500); color: #fff; }
+.dv-handshake-card .step.active .num { background: var(--color-brand-500); color: #fff; }
+.dv-handshake-card .step .body .ttl { font-size: 13px; font-weight: 600; }
+.dv-handshake-card .step .body .desc { font-size: 12px; color: var(--fg-secondary); margin-top: 1px; }
+
+/* ─── Auth / onboarding ────────────────────────────────── */
+.dv-auth {
+  flex: 1; display: flex; flex-direction: column;
+  padding: 70px 26px 30px; background: #fff;
+}
+.dv-auth .logo { text-align: center; margin-bottom: 28px; }
+.dv-auth .logo img { height: 32px; }
+.dv-auth h1 { margin: 0 0 6px; font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
+.dv-auth p.lead { margin: 0 0 28px; font-size: 14.5px; color: var(--fg-secondary); line-height: 1.5; }
+
+.dv-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.dv-field label { font-size: 13px; font-weight: 500; color: var(--fg-primary); }
+.dv-field input {
+  padding: 13px 14px; font-size: 14px;
+  border: 1px solid var(--border-default); border-radius: 10px;
+  outline: none; font-family: var(--font-sans); background: #fff;
+}
+.dv-field input:focus {
+  border-color: var(--color-brand-500);
+  box-shadow: 0 0 0 4px rgba(55,119,255,.15);
+}
+.dv-field .helper { font-size: 12px; color: var(--fg-tertiary); }
+
+.dv-divider {
+  display: flex; align-items: center; gap: 12px; margin: 22px 0 14px;
+}
+.dv-divider .line { flex: 1; height: 1px; background: var(--border-subtle); }
+.dv-divider .text {
+  font-size: 11px; color: var(--fg-tertiary);
+  text-transform: uppercase; letter-spacing: .08em;
+}
+
+.dv-social {
+  padding: 13px; background: #fff;
+  border: 1px solid var(--border-default); border-radius: 10px;
+  font-size: 14px; font-weight: 500;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  cursor: pointer; margin-bottom: 8px;
+}
+
+.dv-foot { text-align: center; margin-top: auto; padding-top: 20px; font-size: 13px; color: var(--fg-secondary); }
+.dv-foot a { color: var(--color-brand-600); font-weight: 600; cursor: pointer; }
+
+/* ─── VIN onboarding ───────────────────────────────────── */
+.dv-vincard {
+  background: #fff; border: 1px solid var(--border-subtle);
+  border-radius: 14px; padding: 18px; margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.dv-vincard .car-icon {
+  width: 64px; height: 64px; border-radius: 14px;
+  background: var(--color-brand-50); margin: 0 auto 14px;
+  display: flex; align-items: center; justify-content: center;
+}
+.dv-vincard .nm { text-align: center; font-size: 18px; font-weight: 700; }
+.dv-vincard .meta { text-align: center; font-size: 13px; color: var(--fg-secondary); margin-top: 4px; }
+.dv-vincard .info-row {
+  display: flex; padding: 10px 0; border-top: 1px solid var(--border-subtle);
+  font-size: 13px;
+}
+.dv-vincard .info-row .l { color: var(--fg-tertiary); flex: 1; }
+.dv-vincard .info-row .v { font-weight: 500; }
+
+.dv-vinscan {
+  border: 1.5px dashed var(--color-brand-200);
+  border-radius: 14px; padding: 28px 18px; text-align: center;
+  background: var(--color-brand-50); cursor: pointer;
+}
+.dv-vinscan .ic {
+  width: 56px; height: 56px; border-radius: 14px;
+  background: var(--color-brand-100); margin: 0 auto 14px;
+  display: flex; align-items: center; justify-content: center;
+}
+.dv-vinscan .ttl { font-size: 15px; font-weight: 600; }
+.dv-vinscan .meta { font-size: 12px; color: var(--fg-secondary); margin-top: 4px; }
+
+/* ─── Empty state ──────────────────────────────────────── */
+.dv-empty {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 40px 32px; text-align: center;
+}
+.dv-empty .ic {
+  width: 72px; height: 72px; border-radius: 18px;
+  background: var(--color-neutral-100);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 18px;
+}
+.dv-empty h3 { margin: 0 0 8px; font-size: 17px; font-weight: 600; }
+.dv-empty p { margin: 0; font-size: 13.5px; color: var(--fg-secondary); line-height: 1.5; max-width: 260px; }
+
+/* ─── Claimed-deal item ────────────────────────────────── */
+.dv-claim {
+  background: #fff; border: 1px solid var(--border-subtle);
+  border-radius: 12px; padding: 14px;
+  margin-bottom: 10px; cursor: pointer; position: relative;
+  transition: border-color .12s ease;
+}
+.dv-claim:hover { border-color: var(--color-brand-200); }
+.dv-claim .top-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.dv-claim .shop { font-size: 11px; color: var(--fg-tertiary); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.dv-claim .pill { margin-left: auto; }
+.dv-claim .ttl { font-size: 14.5px; font-weight: 600; line-height: 1.35; }
+.dv-claim .price-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; font-size: 12px; color: var(--fg-secondary); }
+.dv-claim .price-row .price { color: var(--color-brand-600); font-weight: 600; font-size: 14px; }
+.dv-claim .progress {
+  margin-top: 10px; height: 4px; border-radius: 2px; overflow: hidden;
+  background: var(--color-neutral-100);
+}
+.dv-claim .progress .bar { height: 100%; background: var(--color-brand-500); transition: width .3s ease; }
+
+/* ─── Timeline (claim detail) ──────────────────────────── */
+.dv-tl { padding: 0 16px; }
+.dv-tl .item { display: flex; gap: 14px; }
+.dv-tl .item .col {
+  display: flex; flex-direction: column; align-items: center;
+  padding-top: 4px;
+}
+.dv-tl .item .dot {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--color-neutral-200); border: 3px solid #fff;
+  box-shadow: 0 0 0 1px var(--color-neutral-300);
+}
+.dv-tl .item.done .dot { background: var(--color-success-500); box-shadow: 0 0 0 1px var(--color-success-200); }
+.dv-tl .item.active .dot { background: var(--color-brand-500); box-shadow: 0 0 0 1px var(--color-brand-200); animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 1px var(--color-brand-200), 0 0 0 0px rgba(55,119,255,.4); }
+  50% { box-shadow: 0 0 0 1px var(--color-brand-200), 0 0 0 6px rgba(55,119,255,0); }
+}
+.dv-tl .item .ln { flex: 1; width: 2px; background: var(--border-subtle); margin-top: 4px; min-height: 14px; }
+.dv-tl .item.done .ln { background: var(--color-success-200); }
+.dv-tl .item:last-child .ln { display: none; }
+.dv-tl .item .body { flex: 1; padding-bottom: 22px; }
+.dv-tl .item .when {
+  font-size: 11px; color: var(--fg-tertiary);
+  text-transform: uppercase; letter-spacing: .05em; font-weight: 600;
+}
+.dv-tl .item .ttl { font-size: 14px; font-weight: 600; margin-top: 3px; }
+.dv-tl .item .desc { font-size: 12.5px; color: var(--fg-secondary); margin-top: 4px; line-height: 1.5; }
+.dv-tl .item.future .when, .dv-tl .item.future .ttl { color: var(--fg-tertiary); }
+.dv-tl .item.future .desc { color: var(--fg-tertiary); }
+
+/* ─── Linked shops list ────────────────────────────────── */
+.dv-shop-row {
+  display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+  background: #fff; border: 1px solid var(--border-subtle);
+  border-radius: 12px; margin-bottom: 8px;
+}
+.dv-shop-row .av {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: var(--color-brand-100); color: var(--color-brand-700);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700;
+}
+.dv-shop-row .info .nm { font-size: 13.5px; font-weight: 600; }
+.dv-shop-row .info .meta { font-size: 11.5px; color: var(--fg-secondary); margin-top: 1px; }
+
+/* ─── Spinner ──────────────────────────────────────────── */
+.dv-spinner {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.4); border-top-color: #fff;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }

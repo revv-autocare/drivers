@@ -1,0 +1,37 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Inputs</title>
+<link rel="stylesheet" href="_card.css">
+<style>
+  .field { display:flex; flex-direction:column; gap:6px; }
+  .field label { font-size:13px; font-weight:500; color:var(--fg-primary); }
+  .field .input { padding:10px 14px; border:1px solid var(--border-default); background:#fff; border-radius:8px; font-size:14px; font-family:var(--font-sans); color:var(--fg-primary); }
+  .field .input:focus { outline:none; border-color:var(--color-brand-500); box-shadow:0 0 0 4px rgba(55,119,255,.18); }
+  .field .help { font-size:12px; color:var(--fg-secondary); }
+  .field--error .input { border-color:var(--color-error-500); box-shadow:0 0 0 4px rgba(218,42,32,.16); }
+  .field--error .help { color:var(--color-error-600); }
+</style>
+</head>
+<body>
+<div class="card" style="display:grid; grid-template-columns: 1fr 1fr; gap:18px;">
+  <div class="field">
+    <label>Default</label>
+    <input class="input" placeholder="Placeholder text"/>
+    <span class="help">Help text appears here</span>
+  </div>
+  <div class="field">
+    <label>Focused</label>
+    <input class="input" value="example@email.com" style="border-color:var(--color-brand-500); box-shadow:0 0 0 4px rgba(55,119,255,.18);"/>
+    <span class="help">Focused state</span>
+  </div>
+  <div class="field field--error">
+    <label>Error</label>
+    <input class="input" value="not-an-email"/>
+    <span class="help">Please enter a valid email address</span>
+  </div>
+  <div class="field">
+    <label>Disabled</label>
+    <input class="input" value="" placeholder="Disabled input" disabled style="background:var(--color-grey-50); color:var(--color-grey-400);"/>
+    <span class="help">Inactive — not editable</span>
+  </div>
+</div>
+</body></html>

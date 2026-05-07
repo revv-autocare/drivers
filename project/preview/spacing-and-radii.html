@@ -1,0 +1,31 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Spacing & Radii</title>
+<link rel="stylesheet" href="_card.css"></head>
+<body>
+<div class="card" style="display:grid; grid-template-columns: 1.1fr 1fr; gap:28px;">
+  <div>
+    <div style="font-size:13px; font-weight:600; margin-bottom:10px;">Spacing · 4-pt grid</div>
+    <div style="display:flex; flex-direction:column; gap:6px;">
+      <div style="display:flex; align-items:center; gap:10px;"><div style="width:4px; height:14px; background:var(--color-brand-500);"></div><span style="font-size:11px; color:var(--fg-secondary); width:70px;">space-1 · 4</span></div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="width:8px; height:14px; background:var(--color-brand-500);"></div><span style="font-size:11px; color:var(--fg-secondary); width:70px;">space-2 · 8</span></div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="width:12px; height:14px; background:var(--color-brand-500);"></div><span style="font-size:11px; color:var(--fg-secondary); width:70px;">space-3 · 12</span></div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="width:16px; height:14px; background:var(--color-brand-500);"></div><span style="font-size:11px; color:var(--fg-secondary); width:70px;">space-4 · 16</span></div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="width:24px; height:14px; background:var(--color-brand-500);"></div><span style="font-size:11px; color:var(--fg-secondary); width:70px;">space-6 · 24</span></div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="width:32px; height:14px; background:var(--color-brand-500);"></div><span style="font-size:11px; color:var(--fg-secondary); width:70px;">space-8 · 32</span></div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="width:48px; height:14px; background:var(--color-brand-500);"></div><span style="font-size:11px; color:var(--fg-secondary); width:70px;">space-12 · 48</span></div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="width:64px; height:14px; background:var(--color-brand-500);"></div><span style="font-size:11px; color:var(--fg-secondary); width:70px;">space-16 · 64</span></div>
+    </div>
+  </div>
+  <div>
+    <div style="font-size:13px; font-weight:600; margin-bottom:10px;">Corner radii</div>
+    <div style="display:flex; flex-wrap:wrap; gap:14px;">
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><div style="width:54px; height:54px; background:var(--color-neutral-100); border:1px solid var(--border-default); border-radius:4px;"></div><span style="font-size:10px; color:var(--fg-secondary)">xs · 4</span></div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><div style="width:54px; height:54px; background:var(--color-neutral-100); border:1px solid var(--border-default); border-radius:6px;"></div><span style="font-size:10px; color:var(--fg-secondary)">sm · 6</span></div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><div style="width:54px; height:54px; background:var(--color-neutral-100); border:1px solid var(--border-default); border-radius:8px;"></div><span style="font-size:10px; color:var(--fg-secondary)">md · 8 ★</span></div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><div style="width:54px; height:54px; background:var(--color-neutral-100); border:1px solid var(--border-default); border-radius:12px;"></div><span style="font-size:10px; color:var(--fg-secondary)">lg · 12</span></div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><div style="width:54px; height:54px; background:var(--color-neutral-100); border:1px solid var(--border-default); border-radius:16px;"></div><span style="font-size:10px; color:var(--fg-secondary)">xl · 16</span></div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><div style="width:54px; height:54px; background:var(--color-neutral-100); border:1px solid var(--border-default); border-radius:999px;"></div><span style="font-size:10px; color:var(--fg-secondary)">pill</span></div>
+    </div>
+  </div>
+</div>
+</body></html>
