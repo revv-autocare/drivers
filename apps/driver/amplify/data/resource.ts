@@ -3,28 +3,28 @@ import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
 /**
  * Revv data model.
  *
- * Authorization summary:
- *  - Drivers own their UserProfile, Vehicle, Claim, Appointment, ServiceLogEntry.
- *  - Shops and Deals are owned by shop_member group; readable by all signed-in
- *    drivers (so they can browse).
- *  - Admin group has read/write on everything.
+ * Authorization:
+ *  - Drivers own their UserProfile, Vehicle, Claim, Appointment, ServiceLogEntry
+ *    via `allow.owner()` — Amplify auto-injects an implicit owner field
+ *    holding the Cognito sub on these models.
+ *  - Shops and Deals are readable by any signed-in user; writable by shop_member.
+ *  - Admin group has full access on everything.
  *
- * This is the Phase 1 schema. Subscriptions, custom resolvers, and per-row
- * fine-grained rules (e.g. "shop_member can only mutate their own Shop") are
- * added in Phase 2 alongside the shop app.
+ * The implicit owner field means we don't define explicit `owner: a.string()`
+ * fields and we don't name belongsTo relationships `owner` (those would clash
+ * with the implicit field).
+ *
+ * Phase 2 will add subscriptions, custom resolvers, and per-row rules
+ * (e.g. shop_member can only mutate Claims for their own Shop).
  */
 const schema = a.schema({
   // ── User profile (extends Cognito identity) ────────────────────────
   UserProfile: a
     .model({
-      owner: a.string(), // Cognito sub
       email: a.string().required(),
       name: a.string(),
       phone: a.string(),
       neighborhood: a.string(),
-      vehicles: a.hasMany("Vehicle", "ownerId"),
-      claims: a.hasMany("Claim", "ownerId"),
-      appointments: a.hasMany("Appointment", "ownerId"),
     })
     .authorization((allow) => [
       allow.owner(),
@@ -34,8 +34,6 @@ const schema = a.schema({
   // ── Vehicle ────────────────────────────────────────────────────────
   Vehicle: a
     .model({
-      ownerId: a.id().required(),
-      owner: a.belongsTo("UserProfile", "ownerId"),
       vin: a.string().required(),
       year: a.integer(),
       make: a.string(),
@@ -43,7 +41,7 @@ const schema = a.schema({
       engine: a.string(),
       plate: a.string(),
       mileage: a.integer(),
-      photoKey: a.string(), // S3 key for vehicle photo
+      photoKey: a.string(),
       serviceLog: a.hasMany("ServiceLogEntry", "vehicleId"),
     })
     .authorization((allow) => [
@@ -74,7 +72,7 @@ const schema = a.schema({
       appointments: a.hasMany("Appointment", "shopId"),
     })
     .authorization((allow) => [
-      allow.authenticated().to(["read"]), // any signed-in driver can browse
+      allow.authenticated().to(["read"]),
       allow.group("shop_member"),
       allow.group("admin"),
     ]),
@@ -84,7 +82,7 @@ const schema = a.schema({
     .model({
       shopId: a.id().required(),
       shop: a.belongsTo("Shop", "shopId"),
-      userSub: a.string().required(), // Cognito sub
+      userSub: a.string().required(),
       role: a.enum(["owner", "advisor", "tech"]),
     })
     .authorization((allow) => [
@@ -117,8 +115,6 @@ const schema = a.schema({
   // ── Claim (driver claims a Deal; shop has 24h to respond) ──────────
   Claim: a
     .model({
-      ownerId: a.id().required(),
-      owner: a.belongsTo("UserProfile", "ownerId"),
       dealId: a.id().required(),
       deal: a.belongsTo("Deal", "dealId"),
       shopId: a.id(),
@@ -132,7 +128,7 @@ const schema = a.schema({
     })
     .authorization((allow) => [
       allow.owner(),
-      allow.group("shop_member").to(["read", "update"]), // shop responds
+      allow.group("shop_member").to(["read", "update"]),
       allow.group("admin"),
     ])
     .secondaryIndexes((index) => [
@@ -143,14 +139,12 @@ const schema = a.schema({
   // ── Appointment (booked time slot at a Shop) ───────────────────────
   Appointment: a
     .model({
-      ownerId: a.id().required(),
-      owner: a.belongsTo("UserProfile", "ownerId"),
       shopId: a.id().required(),
       shop: a.belongsTo("Shop", "shopId"),
       vehicleId: a.id(),
       service: a.string().required(),
       date: a.date().required(),
-      time: a.string().required(), // HH:mm or "9:30 am"
+      time: a.string().required(),
       notes: a.string(),
       status: a.enum(["pending", "confirmed", "completed", "cancelled", "no_show"]),
       bookedAt: a.datetime().required(),
@@ -169,7 +163,7 @@ const schema = a.schema({
     .model({
       vehicleId: a.id().required(),
       vehicle: a.belongsTo("Vehicle", "vehicleId"),
-      shopId: a.id(), // null when self-logged
+      shopId: a.id(),
       date: a.date().required(),
       mileage: a.integer(),
       what: a.string().required(),
@@ -177,7 +171,7 @@ const schema = a.schema({
       category: a.string(),
       notes: a.string(),
       via: a.enum(["auto", "manual"]),
-      receiptKey: a.string(), // S3 key for receipt photo/PDF
+      receiptKey: a.string(),
     })
     .authorization((allow) => [
       allow.owner().to(["create", "read", "update", "delete"]),
