@@ -1,15 +1,16 @@
 version: 1
 applications:
   # ── Driver PWA — also deploys the shared Amplify Gen 2 backend ──
-  # Backend now lives at apps/driver/amplify/ per Gen 2 monorepo convention,
-  # so npx ampx finds it directly without any cd or buildPath gymnastics.
+  # Backend lives at apps/driver/amplify/. Commands run from appRoot
+  # (apps/driver) — using `pnpm -C ../..` instead of `cd ../..` so CWD
+  # stays at appRoot and ampx finds ./amplify/backend.ts directly.
   - appRoot: apps/driver
     backend:
       phases:
         preBuild:
           commands:
             - npm install -g --force pnpm@9 @aws-amplify/backend-cli@1
-            - cd ../.. && pnpm install --no-frozen-lockfile
+            - pnpm -C ../.. install --no-frozen-lockfile
         build:
           commands:
             - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
@@ -18,10 +19,10 @@ applications:
         preBuild:
           commands:
             - npm install -g --force pnpm@9
-            - cd ../.. && pnpm install --no-frozen-lockfile
+            - pnpm -C ../.. install --no-frozen-lockfile
         build:
           commands:
-            - cd ../.. && pnpm --filter driver build
+            - pnpm -C ../.. --filter driver build
       artifacts:
         baseDirectory: dist
         files:
@@ -38,10 +39,10 @@ applications:
         preBuild:
           commands:
             - npm install -g --force pnpm@9
-            - cd ../.. && pnpm install --no-frozen-lockfile
+            - pnpm -C ../.. install --no-frozen-lockfile
         build:
           commands:
-            - cd ../.. && pnpm --filter shop build
+            - pnpm -C ../.. --filter shop build
       artifacts:
         baseDirectory: .next
         files:
@@ -58,10 +59,10 @@ applications:
         preBuild:
           commands:
             - npm install -g --force pnpm@9
-            - cd ../.. && pnpm install --no-frozen-lockfile
+            - pnpm -C ../.. install --no-frozen-lockfile
         build:
           commands:
-            - cd ../.. && pnpm --filter admin build
+            - pnpm -C ../.. --filter admin build
       artifacts:
         baseDirectory: .next
         files:
