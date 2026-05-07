@@ -1,0 +1,271 @@
+/* ============================================================
+   Revv "Ripple" Design System v1.0
+   Colors & Type tokens
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
+
+:root {
+  /* ---------- BASE ---------- */
+  --color-base-white: #FFFFFF;
+  --color-base-black: #000000;
+
+  /* ---------- BRAND (BLUE) ---------- */
+  /* Primary brand color: #3777FF */
+  --color-brand-25:  #F5F8FF;
+  --color-brand-50:  #EAF1FF;
+  --color-brand-100: #D2E0FF;
+  --color-brand-200: #A8C2FF;
+  --color-brand-300: #7CA1FF;
+  --color-brand-400: #5489FF;
+  --color-brand-500: #3777FF; /* PRIMARY */
+  --color-brand-600: #2C5FD9;
+  --color-brand-700: #1E47A6;
+  --color-brand-800: #142E70;
+  --color-brand-900: #0A1A3F; /* sidebar navy */
+
+  /* ---------- NEUTRAL (cool slate) ---------- */
+  --color-neutral-25:  #FBFCFD;
+  --color-neutral-50:  #F4F7FA;
+  --color-neutral-100: #E6ECF2;
+  --color-neutral-200: #CDD6E0;
+  --color-neutral-300: #A8B4C2;
+  --color-neutral-400: #7B8794;
+  --color-neutral-500: #525F6D;
+  --color-neutral-600: #3A4757;
+  --color-neutral-700: #283344;
+  --color-neutral-800: #1A2333;
+  --color-neutral-900: #0F1626;
+
+  /* ---------- GREY (warm neutral, used for outlines/disabled) ---------- */
+  --color-grey-25:  #FCFCFD;
+  --color-grey-50:  #F7F7F8;
+  --color-grey-100: #EEEEF0;
+  --color-grey-200: #D8D8DC;
+  --color-grey-300: #B5B5BC;
+  --color-grey-400: #8B8B92;
+  --color-grey-500: #65656C;
+  --color-grey-600: #4B4B51;
+  --color-grey-700: #353539;
+  --color-grey-800: #232326;
+  --color-grey-900: #161617;
+
+  /* ---------- ERROR (red) ---------- */
+  --color-error-25:  #FFFAF9;
+  --color-error-50:  #FEF3F2;
+  --color-error-100: #FEE0DE;
+  --color-error-200: #FCB7B3;
+  --color-error-300: #F8847E;
+  --color-error-400: #EE5249;
+  --color-error-500: #DA2A20; /* primary error */
+  --color-error-600: #B11B12;
+  --color-error-700: #84120B;
+  --color-error-800: #560A06;
+  --color-error-900: #2E0502;
+
+  /* ---------- SUCCESS (green) ---------- */
+  --color-success-25:  #F6FEF8;
+  --color-success-50:  #E9FBEE;
+  --color-success-100: #C9F4D4;
+  --color-success-200: #97E5AC;
+  --color-success-300: #5CD27A;
+  --color-success-400: #2DB752;
+  --color-success-500: #1F9A41; /* primary success — toggle on */
+  --color-success-600: #167C33;
+  --color-success-700: #0F5C26;
+  --color-success-800: #093C19;
+  --color-success-900: #04210D;
+
+  /* ---------- WARNING (amber) ---------- */
+  --color-warning-25:  #FFFCF5;
+  --color-warning-50:  #FFF4E0;
+  --color-warning-100: #FFE2B0;
+  --color-warning-200: #FFC771;
+  --color-warning-300: #FFA838;
+  --color-warning-400: #F58A0F;
+  --color-warning-500: #C76C04; /* primary warning */
+  --color-warning-600: #985200;
+  --color-warning-700: #6E3B00;
+  --color-warning-800: #472500;
+  --color-warning-900: #261300;
+
+  /* ---------- SEMANTIC TOKENS ---------- */
+  /* Foreground / text */
+  --fg-primary:    var(--color-neutral-900);
+  --fg-secondary:  var(--color-neutral-500);
+  --fg-tertiary:   var(--color-neutral-400);
+  --fg-disabled:   var(--color-grey-300);
+  --fg-on-brand:   var(--color-base-white);
+  --fg-brand:      var(--color-brand-500);
+  --fg-success:    var(--color-success-600);
+  --fg-error:      var(--color-error-600);
+  --fg-warning:    var(--color-warning-600);
+
+  /* Background */
+  --bg-canvas:     var(--color-neutral-50);   /* app background */
+  --bg-surface:    var(--color-base-white);   /* cards, panels */
+  --bg-subtle:     var(--color-neutral-50);
+  --bg-muted:      var(--color-neutral-100);
+  --bg-brand:      var(--color-brand-500);
+  --bg-brand-soft: var(--color-brand-50);
+  --bg-sidebar:    var(--color-brand-900);    /* navy */
+  --bg-success-soft: var(--color-success-50);
+  --bg-error-soft:   var(--color-error-50);
+  --bg-warning-soft: var(--color-warning-50);
+
+  /* Border */
+  --border-subtle:  var(--color-neutral-100);
+  --border-default: var(--color-neutral-200);
+  --border-strong:  var(--color-neutral-300);
+  --border-brand:   var(--color-brand-500);
+
+  /* Status accent strips (for kanban card top-borders) */
+  --status-estimate:    var(--color-brand-500);
+  --status-in-shop:     var(--color-neutral-400);
+  --status-in-progress: var(--color-warning-400);
+  --status-completed:   var(--color-success-500);
+  --status-on-hold:     var(--color-error-400);
+
+  /* ---------- SHADOWS ---------- */
+  /* Light, cool — close to the figma's frame shadows */
+  --shadow-xs:  0 1px 2px 0 rgba(16, 24, 40, 0.05);
+  --shadow-sm:  0 1px 3px 0 rgba(16, 24, 40, 0.08), 0 1px 2px -1px rgba(16, 24, 40, 0.06);
+  --shadow-md:  0 4px 8px -2px rgba(16, 24, 40, 0.10), 0 2px 4px -2px rgba(16, 24, 40, 0.06);
+  --shadow-lg:  0 12px 16px -4px rgba(16, 24, 40, 0.08), 0 4px 6px -2px rgba(16, 24, 40, 0.03);
+  --shadow-xl:  0 20px 24px -4px rgba(16, 24, 40, 0.08), 0 8px 8px -4px rgba(16, 24, 40, 0.03);
+  --shadow-focus-brand: 0 0 0 4px rgba(55, 119, 255, 0.18);
+  --shadow-focus-error: 0 0 0 4px rgba(218, 42, 32, 0.18);
+
+  /* ---------- RADII ---------- */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-pill: 999px;
+
+  /* ---------- SPACING (4-pt grid) ---------- */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* ---------- TYPOGRAPHY ---------- */
+  --font-sans: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+
+  /* Display sizes (DM Sans) */
+  --text-display-2xl: 64px;  --lh-display-2xl: 72px;
+  --text-display-xl:  56px;  --lh-display-xl:  64px;
+  --text-display-lg:  48px;  --lh-display-lg:  56px;
+  --text-display-md:  36px;  --lh-display-md:  44px;
+  --text-display-sm:  30px;  --lh-display-sm:  38px;
+  --text-display-xs:  24px;  --lh-display-xs:  32px;
+
+  /* Body sizes */
+  --text-xl: 20px;  --lh-xl: 30px;
+  --text-lg: 18px;  --lh-lg: 28px;
+  --text-md: 16px;  --lh-md: 24px;
+  --text-sm: 14px;  --lh-sm: 20px;
+  --text-xs: 12px;  --lh-xs: 18px;
+
+  /* Weights */
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-semibold:600;
+  --weight-bold:    700;
+
+  /* Tracking */
+  --track-tight:  -0.02em;
+  --track-normal:  0;
+  --track-wide:    0.02em;
+  --track-caps:    0.06em;
+}
+
+/* ============================================================
+   Semantic element styles
+   ============================================================ */
+html, body {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--lh-md);
+  color: var(--fg-primary);
+  background: var(--bg-canvas);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1 {
+  font-family: var(--font-sans);
+  font-size: var(--text-display-md);
+  line-height: var(--lh-display-md);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--track-tight);
+  color: var(--fg-primary);
+  margin: 0;
+}
+h2 {
+  font-size: var(--text-display-sm);
+  line-height: var(--lh-display-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--track-tight);
+  color: var(--fg-primary);
+  margin: 0;
+}
+h3 {
+  font-size: var(--text-display-xs);
+  line-height: var(--lh-display-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-tight);
+  color: var(--fg-primary);
+  margin: 0;
+}
+h4 {
+  font-size: var(--text-xl);
+  line-height: var(--lh-xl);
+  font-weight: var(--weight-semibold);
+  color: var(--fg-primary);
+  margin: 0;
+}
+h5 {
+  font-size: var(--text-lg);
+  line-height: var(--lh-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--fg-primary);
+  margin: 0;
+}
+h6 {
+  font-size: var(--text-md);
+  line-height: var(--lh-md);
+  font-weight: var(--weight-semibold);
+  color: var(--fg-primary);
+  margin: 0;
+}
+p { margin: 0; color: var(--fg-primary); }
+
+small, .text-sm { font-size: var(--text-sm); line-height: var(--lh-sm); }
+.text-xs { font-size: var(--text-xs); line-height: var(--lh-xs); }
+.text-secondary { color: var(--fg-secondary); }
+.text-tertiary { color: var(--fg-tertiary); }
+
+.eyebrow {
+  font-size: var(--text-xs);
+  line-height: var(--lh-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-secondary);
+}
+
+code, pre, .mono {
+  font-family: var(--font-mono);
+}

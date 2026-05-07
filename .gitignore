@@ -1,0 +1,46 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build output
+dist/
+.next/
+build/
+out/
+
+# env / secrets
+.env
+.env.local
+.env.*.local
+amplify_outputs.json
+amplifyconfiguration.json
+.amplify/
+
+# AWS / Amplify Gen 2 sandbox
+.amplify-sandbox/
+amplify-cdk.out/
+cdk.out/
+
+# logs / caches
+*.log
+npm-debug.log*
+.npm/
+.cache/
+.parcel-cache/
+.turbo/
+.swc/
+
+# OS / editor
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.recommended.json
+.idea/
+
+# coverage / test
+coverage/
+.nyc_output/
+
+# tarballs / archives
+revv-driver-bundle.zip
+*.tgz
