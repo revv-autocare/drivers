@@ -4,7 +4,7 @@ import { Amplify } from "aws-amplify";
 import "@aws-amplify/ui-react/styles.css";
 import "design-system/styles/tokens.css";
 
-import outputs from "../../../amplify_outputs.json";
+import outputs from "../amplify_outputs.json";
 import { App } from "./App";
 
 Amplify.configure(outputs);

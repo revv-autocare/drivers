@@ -18,8 +18,8 @@
     "build:admin": "pnpm --filter admin build",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
-    "amplify:sandbox": "cd amplify && npx ampx sandbox",
-    "amplify:deploy": "cd amplify && npx ampx pipeline-deploy"
+    "amplify:sandbox": "pnpm --filter driver amplify:sandbox",
+    "amplify:deploy": "pnpm --filter driver amplify:deploy"
   },
   "devDependencies": {
     "typescript": "^5.6.3"
