@@ -8,7 +8,7 @@ applications:
       phases:
         preBuild:
           commands:
-            - npm install -g --force pnpm@9
+            - npm install -g --force pnpm@9 @aws-amplify/backend-cli@1
             - cd ../.. && pnpm install --no-frozen-lockfile
         build:
           commands:
