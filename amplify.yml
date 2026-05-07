@@ -6,8 +6,11 @@ applications:
       phases:
         preBuild:
           commands:
-            - npm install -g pnpm@9 @aws-amplify/backend-cli@1
-            - cd ../.. && pnpm install --frozen-lockfile
+            # --force overrides the Gen 1 `amplify` binary pre-installed in the
+            # Amplify build container. --no-frozen-lockfile because we don't
+            # commit pnpm-lock.yaml yet (first build generates it).
+            - npm install -g --force pnpm@9 @aws-amplify/backend-cli@1
+            - cd ../.. && pnpm install --no-frozen-lockfile
         build:
           commands:
             - cd ../.. && ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
@@ -15,35 +18,35 @@ applications:
       phases:
         preBuild:
           commands:
-            - npm install -g pnpm@9
-            - cd ../.. && pnpm install --frozen-lockfile
+            - npm install -g --force pnpm@9
+            - cd ../.. && pnpm install --no-frozen-lockfile
         build:
           commands:
             - cd ../.. && pnpm --filter driver build
       artifacts:
         baseDirectory: dist
         files:
-          - "**/*"
+          - '**/*'
       cache:
         paths:
           - ../../node_modules/**/*
           - ../../.pnpm-store/**/*
 
-  # ── Shop (Phase 2 — connect a separate Amplify Hosting app pointing at apps/shop) ──
+  # ── Shop (Phase 2) ──
   - appRoot: apps/shop
     frontend:
       phases:
         preBuild:
           commands:
-            - npm install -g pnpm@9
-            - cd ../.. && pnpm install --frozen-lockfile
+            - npm install -g --force pnpm@9
+            - cd ../.. && pnpm install --no-frozen-lockfile
         build:
           commands:
             - cd ../.. && pnpm --filter shop build
       artifacts:
         baseDirectory: .next
         files:
-          - "**/*"
+          - '**/*'
       cache:
         paths:
           - ../../node_modules/**/*
@@ -55,15 +58,15 @@ applications:
       phases:
         preBuild:
           commands:
-            - npm install -g pnpm@9
-            - cd ../.. && pnpm install --frozen-lockfile
+            - npm install -g --force pnpm@9
+            - cd ../.. && pnpm install --no-frozen-lockfile
         build:
           commands:
             - cd ../.. && pnpm --filter admin build
       artifacts:
         baseDirectory: .next
         files:
-          - "**/*"
+          - '**/*'
       cache:
         paths:
           - ../../node_modules/**/*
