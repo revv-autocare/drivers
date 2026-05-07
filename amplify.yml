@@ -1,0 +1,70 @@
+version: 1
+applications:
+  # ── Driver PWA — also deploys the shared Amplify Gen 2 backend ──
+  - appRoot: apps/driver
+    backend:
+      phases:
+        preBuild:
+          commands:
+            - npm install -g pnpm@9 @aws-amplify/backend-cli@1
+            - cd ../.. && pnpm install --frozen-lockfile
+        build:
+          commands:
+            - cd ../.. && ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm install -g pnpm@9
+            - cd ../.. && pnpm install --frozen-lockfile
+        build:
+          commands:
+            - cd ../.. && pnpm --filter driver build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - "**/*"
+      cache:
+        paths:
+          - ../../node_modules/**/*
+          - ../../.pnpm-store/**/*
+
+  # ── Shop (Phase 2 — connect a separate Amplify Hosting app pointing at apps/shop) ──
+  - appRoot: apps/shop
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm install -g pnpm@9
+            - cd ../.. && pnpm install --frozen-lockfile
+        build:
+          commands:
+            - cd ../.. && pnpm --filter shop build
+      artifacts:
+        baseDirectory: .next
+        files:
+          - "**/*"
+      cache:
+        paths:
+          - ../../node_modules/**/*
+          - ../../.pnpm-store/**/*
+
+  # ── Admin (Phase 3) ──
+  - appRoot: apps/admin
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm install -g pnpm@9
+            - cd ../.. && pnpm install --frozen-lockfile
+        build:
+          commands:
+            - cd ../.. && pnpm --filter admin build
+      artifacts:
+        baseDirectory: .next
+        files:
+          - "**/*"
+      cache:
+        paths:
+          - ../../node_modules/**/*
+          - ../../.pnpm-store/**/*
