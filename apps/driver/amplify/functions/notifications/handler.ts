@@ -24,32 +24,23 @@ async function sendSms(to: string, body: string) {
 }
 
 export const handler: AppSyncResolverHandler<NotifyArgs, NotifyReturn> = async (event) => {
-  const { claimId, shopId, dealOffer } = event.arguments;
+  const { claimId, contactPhone, dealOffer } = event.arguments;
 
-  // Only send if Twilio is configured (skip in dev without secrets)
   if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_FROM_NUMBER) {
     console.log("Twilio not configured — skipping SMS for claim", claimId);
     return "skipped";
   }
 
-  // Lazy import Amplify client inside handler to avoid cold-start overhead
-  const { generateClient } = await import("aws-amplify/data");
-  const { Amplify } = await import("aws-amplify");
-  const outputs = await import("../../../amplify_outputs.json");
-  Amplify.configure(outputs.default ?? outputs);
-  const client = generateClient<Schema>();
-
-  const { data: shop } = await client.models.Shop.get({ id: shopId });
-  if (!shop?.contactPhone) {
-    console.warn("Shop has no contactPhone — cannot SMS. shopId:", shopId);
+  if (!contactPhone) {
+    console.warn("No contactPhone provided for claim", claimId);
     return "no-phone";
   }
 
   const msg =
-    `New Revv claim! A driver claimed your deal: "${dealOffer}". ` +
+    `New Revv claim! A driver claimed your deal: "${dealOffer ?? ""}". ` +
     `Claim ID: ${claimId}. ` +
     `You have 24 hours to contact them. Log in at revv.app/shop to view.`;
 
-  await sendSms(shop.contactPhone, msg);
+  await sendSms(contactPhone, msg);
   return "sent";
 };

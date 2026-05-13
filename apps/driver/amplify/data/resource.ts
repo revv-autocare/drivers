@@ -185,9 +185,9 @@ const schema = a.schema({
   notifyShopOfClaim: a
     .mutation()
     .arguments({
-      claimId:   a.string().required(),
-      shopId:    a.string().required(),
-      dealOffer: a.string(),
+      claimId:      a.string().required(),
+      contactPhone: a.string(),
+      dealOffer:    a.string(),
     })
     .returns(a.string())
     .handler(a.handler.function(notifyFn))

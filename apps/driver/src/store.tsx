@@ -95,6 +95,7 @@ function mapShop(s: any): Shop {
     linked: false,
     verified: s.verified ?? false,
     honorRate: s.honorRate ?? 100,
+    ...(s.contactPhone ? { contactPhone: s.contactPhone as string } : {}),
   };
 }
 
@@ -322,9 +323,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setClaims(prev => [...prev, mapClaim(claim)]);
 
     // Fire-and-forget: notify the shop via Lambda
+    // contactPhone comes from the shop list (already fetched); Lambda uses it directly
+    const shopRecord = shops.find(s => s.id === deal.shopId);
     client.mutations.notifyShopOfClaim({
       claimId: claim.id,
-      shopId: deal.shopId,
+      ...(shopRecord?.contactPhone ? { contactPhone: shopRecord.contactPhone } : {}),
       dealOffer: deal.offer,
     }).catch(e => console.warn('Notification failed:', e));
 

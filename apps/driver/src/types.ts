@@ -25,6 +25,7 @@ export interface Shop {
   lastVisit?: string;
   verified: boolean;
   honorRate: number;
+  contactPhone?: string;
 }
 
 export interface ServiceEntry {
