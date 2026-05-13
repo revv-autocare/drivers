@@ -1,19 +1,26 @@
 import {
-  useState, useEffect, useMemo, useCallback,
+  useState, useEffect, useCallback,
   createContext, useContext, ReactNode,
 } from 'react';
 import type { Vehicle, Shop, ServiceEntry, Deal, Claim, Appointment } from './types';
+import { client, daysUntil } from './api';
 
-// ─── Seed data ─────────────────────────────────────────────────────
+// ─── Detect unconfigured backend ────────────────────────────────────────────
+// amplify_outputs.json ships with placeholder values during local dev.
+// We fall back to seed data so the app runs without a deployed backend.
+import outputs from '../amplify_outputs.json';
+const BACKEND_LIVE = !outputs.data.url.includes('PLACEHOLDER');
+
+// ─── Seed data (fallback / demo mode) ───────────────────────────────────────
 export const SEED_VEHICLE: Vehicle = {
   vin: '1HGCM82633A004352',
   year: 2018, make: 'Toyota', model: 'Corolla', engine: '1.8L I4',
-  plate: 'BC RVV-204', mileage: 84120,
+  plate: 'BC RVV-204', mileage: 84_120,
 };
 
 export const SEED_SHOPS: Shop[] = [
-  { id: 'egban',    name: 'Egban Autos',             neighborhood: 'Mount Pleasant',  address: '2310 Main St, Vancouver',        logo: 'EA', logoColor: '#3777FF', rating: 4.8, reviews: 142, distanceKm: 1.4, hours: 'Mon–Sat · 8am–6pm',  specialties: ['Oil change', 'Brakes', 'Inspection'], linked: true,  visits: 3, lastVisit: 'Mar 12, 2024', verified: true,  honorRate: 96 },
-  { id: 'lonsdale', name: 'Lonsdale Auto Care',      neighborhood: 'North Vancouver', address: '845 Lonsdale Ave, North Van',    logo: 'LA', logoColor: '#1F8A5B', rating: 4.7, reviews: 98,  distanceKm: 4.8, hours: 'Mon–Fri · 9am–5pm',  specialties: ['Brakes', 'Suspension', 'Tires'],     linked: true,  visits: 1, lastVisit: 'Sep 4, 2023',  verified: true,  honorRate: 94 },
+  { id: 'egban',    name: 'Egban Autos',             neighborhood: 'Mount Pleasant',  address: '2310 Main St, Vancouver',        logo: 'EA', logoColor: '#3777FF', rating: 4.8, reviews: 142, distanceKm: 1.4, hours: 'Mon–Sat · 8am–6pm',  specialties: ['Oil change', 'Brakes', 'Inspection'], linked: true,  verified: true,  honorRate: 96 },
+  { id: 'lonsdale', name: 'Lonsdale Auto Care',      neighborhood: 'North Vancouver', address: '845 Lonsdale Ave, North Van',    logo: 'LA', logoColor: '#1F8A5B', rating: 4.7, reviews: 98,  distanceKm: 4.8, hours: 'Mon–Fri · 9am–5pm',  specialties: ['Brakes', 'Suspension', 'Tires'],     linked: true,  verified: true,  honorRate: 94 },
   { id: 'marpole',  name: 'Marpole Tire & Wheel',   neighborhood: 'Marpole',         address: '8730 Granville St, Vancouver',   logo: 'MT', logoColor: '#3779C2', rating: 4.6, reviews: 73,  distanceKm: 6.2, hours: 'Tue–Sat · 8am–7pm',  specialties: ['Tires', 'Wheel alignment'],          linked: false, verified: true,  honorRate: 91 },
   { id: 'eastvan',  name: 'East Van AC Specialists', neighborhood: 'East Vancouver',  address: '1422 Commercial Dr, Vancouver', logo: 'EV', logoColor: '#0E7AB8', rating: 4.9, reviews: 56,  distanceKm: 2.6, hours: 'Mon–Sat · 9am–5pm',  specialties: ['AC service', 'Electrical'],          linked: false, verified: true,  honorRate: 98 },
   { id: 'mainst',   name: 'Main St Garage',          neighborhood: 'Mount Pleasant',  address: '3010 Main St, Vancouver',        logo: 'MS', logoColor: '#7C2D92', rating: 4.5, reviews: 211, distanceKm: 1.9, hours: 'Mon–Fri · 8am–6pm',  specialties: ['Inspection', 'Engine', 'Diagnostics'], linked: false, verified: true,  honorRate: 89 },
@@ -23,12 +30,12 @@ export const SEED_SHOPS: Shop[] = [
 ];
 
 export const SEED_SERVICE_LOG: ServiceEntry[] = [
-  { id: 's1', date: '2024-03-12', mileage: 78420, what: 'Oil change + 25-pt inspection',        cost: 79,  shop: 'Egban Autos',        shopId: 'egban',    via: 'auto',   notes: 'Synthetic blend 5W-30. Air filter replaced. Brakes 70% remaining front, 80% rear.', category: 'oil' },
-  { id: 's2', date: '2023-09-04', mileage: 71030, what: 'Front brake pads + rotor resurface',  cost: 340, shop: 'Lonsdale Auto Care', shopId: 'lonsdale', via: 'auto',   notes: 'Ceramic pads. Rotors within spec, resurfaced rather than replaced.',                category: 'brake' },
-  { id: 's3', date: '2023-04-18', mileage: 64800, what: 'Tire rotation',                       cost: 35,  shop: null,                 shopId: null,       via: 'manual', notes: 'DIY — logged manually. Front-to-back rotation.',                                       category: 'tire' },
-  { id: 's4', date: '2023-02-02', mileage: 62100, what: 'BC Out-of-Province Inspection',        cost: 150, shop: 'Main St Garage',     shopId: 'mainst',   via: 'manual', notes: 'Passed first time. Receipt uploaded to Revv.',                                       category: 'insp' },
-  { id: 's5', date: '2022-08-22', mileage: 56200, what: 'Oil change',                           cost: 65,  shop: 'Egban Autos',        shopId: 'egban',    via: 'auto',   notes: 'Full synthetic 5W-30.',                                                              category: 'oil' },
-  { id: 's6', date: '2022-04-10', mileage: 51200, what: 'Battery replacement',                  cost: 195, shop: 'Egban Autos',        shopId: 'egban',    via: 'auto',   notes: 'Original battery 6 years old. New 5-year warranty battery installed.',              category: 'other' },
+  { id: 's1', date: '2024-03-12', mileage: 78_420, what: 'Oil change + 25-pt inspection',       cost: 79,  shop: 'Egban Autos',        shopId: 'egban',    via: 'auto',   notes: 'Synthetic blend 5W-30. Air filter replaced.', category: 'oil' },
+  { id: 's2', date: '2023-09-04', mileage: 71_030, what: 'Front brake pads + rotor resurface', cost: 340, shop: 'Lonsdale Auto Care', shopId: 'lonsdale', via: 'auto',   notes: 'Ceramic pads. Rotors within spec, resurfaced.', category: 'brake' },
+  { id: 's3', date: '2023-04-18', mileage: 64_800, what: 'Tire rotation',                      cost: 35,  shop: null,                 shopId: null,       via: 'manual', notes: 'DIY — front-to-back rotation.', category: 'tire' },
+  { id: 's4', date: '2023-02-02', mileage: 62_100, what: 'BC Out-of-Province Inspection',       cost: 150, shop: 'Main St Garage',     shopId: 'mainst',   via: 'manual', notes: 'Passed first time.', category: 'insp' },
+  { id: 's5', date: '2022-08-22', mileage: 56_200, what: 'Oil change',                          cost: 65,  shop: 'Egban Autos',        shopId: 'egban',    via: 'auto',   notes: 'Full synthetic 5W-30.', category: 'oil' },
+  { id: 's6', date: '2022-04-10', mileage: 51_200, what: 'Battery replacement',                 cost: 195, shop: 'Egban Autos',        shopId: 'egban',    via: 'auto',   notes: 'Original battery 6 years old.', category: 'other' },
 ];
 
 export const SEED_DEALS: Deal[] = [
@@ -40,30 +47,24 @@ export const SEED_DEALS: Deal[] = [
   { id: 'd6', shopId: 'fraser',   shop: 'Fraser St Auto',          neighborhood: 'Mount Pleasant',  category: 'detail', categoryLabel: 'Detailing',       offer: 'Interior + exterior detail — $99 (was $160)',            priceNow: 99,  priceWas: 160, distanceKm: 2.1, expiresInDays: 18, hours: 'Wed–Sun · 10am–6pm', address: '4280 Fraser St, Vancouver' },
 ];
 
-// ─── Helpers ───────────────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 export function findDeal(deals: Deal[], dealId: string): Deal | undefined {
   return deals.find(d => d.id === dealId) ?? SEED_DEALS.find(d => d.id === dealId);
 }
-
 export function findShop(shops: Shop[], shopId: string): Shop | undefined {
   return shops.find(s => s.id === shopId) ?? SEED_SHOPS.find(s => s.id === shopId);
 }
-
 export function getClaimForDeal(claims: Claim[], dealId: string): Claim | null {
   const active = claims.filter(c => c.dealId === dealId && c.status !== 'expired' && c.status !== 'no_response');
   return active[active.length - 1] ?? null;
 }
-
 export function formatTimeLeft(claimedAt: number, now: number): string {
-  const elapsed = now - claimedAt;
-  const remaining = 24 * 60 * 60_000 - elapsed;
+  const remaining = 24 * 60 * 60_000 - (now - claimedAt);
   if (remaining <= 0) return 'Expired';
-  const hrs = Math.floor(remaining / (60 * 60_000));
+  const hrs  = Math.floor(remaining / (60 * 60_000));
   const mins = Math.floor((remaining % (60 * 60_000)) / 60_000);
-  if (hrs >= 1) return `${hrs}h ${mins}m left`;
-  return `${mins}m left`;
+  return hrs >= 1 ? `${hrs}h ${mins}m left` : `${mins}m left`;
 }
-
 export function categoryIcon(cat: string): string {
   const map: Record<string, string> = {
     oil:    '/assets/icons/extra/lightbulb-02.svg',
@@ -74,47 +75,213 @@ export function categoryIcon(cat: string): string {
     detail: '/assets/icons/extra/shield-zap.svg',
     other:  '/assets/icons/revv/help-circle.svg',
   };
-  return map[cat] ?? map['other'];
+  return map[cat] ?? map['other'] ?? '';
 }
 
-// ─── Context ───────────────────────────────────────────────────────
+// ─── Type mappers (API → app types) ─────────────────────────────────────────
+function mapShop(s: any): Shop {
+  return {
+    id: s.id,
+    name: s.name ?? '',
+    neighborhood: s.neighborhood ?? '',
+    address: s.address ?? '',
+    logo: s.logo ?? s.name?.slice(0, 2).toUpperCase() ?? '??',
+    logoColor: s.logoColor ?? '#3777FF',
+    rating: s.rating ?? 0,
+    reviews: s.reviewsCount ?? 0,
+    distanceKm: s.distanceKm ?? 0,
+    hours: s.hours ?? '',
+    specialties: s.specialties ?? [],
+    linked: false,
+    verified: s.verified ?? false,
+    honorRate: s.honorRate ?? 100,
+  };
+}
+
+function mapDeal(d: any, shopMap: Record<string, Shop>): Deal {
+  const shop = shopMap[d.shopId];
+  return {
+    id: d.id,
+    shopId: d.shopId ?? '',
+    shop: shop?.name ?? '',
+    neighborhood: shop?.neighborhood ?? '',
+    category: d.category ?? 'other',
+    categoryLabel: d.categoryLabel ?? d.category ?? '',
+    offer: d.offer ?? '',
+    priceNow: d.priceNow ?? null,
+    priceWas: d.priceWas ?? null,
+    ...(d.pct != null ? { pct: d.pct as number } : {}),
+    distanceKm: shop?.distanceKm ?? 0,
+    expiresInDays: daysUntil(d.expiresAt),
+    hours: shop?.hours ?? '',
+    address: shop?.address ?? '',
+  };
+}
+
+function mapClaim(c: any): Claim {
+  return {
+    id: c.id,
+    dealId: c.dealId ?? '',
+    claimedAt: c.claimedAt ? new Date(c.claimedAt).getTime() : Date.now(),
+    status: c.status ?? 'awaiting',
+    ...(c.contactedAt ? { contactedAt: new Date(c.contactedAt).getTime() } : {}),
+    ...(c.confirmedAt ? { confirmedAt: new Date(c.confirmedAt).getTime() } : {}),
+    ...(c.expiredAt   ? { expiredAt:   new Date(c.expiredAt).getTime()   } : {}),
+  };
+}
+
+function mapVehicle(v: any): Vehicle {
+  return {
+    vin: v.vin ?? '',
+    year: v.year ?? 0,
+    make: v.make ?? '',
+    model: v.model ?? '',
+    engine: v.engine ?? '',
+    plate: v.plate ?? '',
+    mileage: v.mileage ?? 0,
+  };
+}
+
+function mapServiceEntry(e: any, shopMap: Record<string, Shop>): ServiceEntry {
+  const shop = e.shopId ? shopMap[e.shopId] : null;
+  return {
+    id: e.id,
+    date: e.date ?? '',
+    mileage: e.mileage ?? 0,
+    what: e.what ?? '',
+    cost: e.cost ?? null,
+    shop: shop?.name ?? e.shopName ?? null,
+    shopId: e.shopId ?? null,
+    via: e.via ?? 'manual',
+    notes: e.notes ?? '',
+    category: e.category ?? 'other',
+  };
+}
+
+function mapAppointment(a: any): Appointment {
+  return {
+    id: a.id,
+    shopId: a.shopId ?? '',
+    service: a.service ?? '',
+    date: a.date ?? '',
+    time: a.time ?? '',
+    notes: a.notes ?? '',
+    bookedAt: a.bookedAt ? new Date(a.bookedAt).getTime() : Date.now(),
+    status: a.status ?? 'pending',
+  };
+}
+
+// ─── Context ─────────────────────────────────────────────────────────────────
 interface StoreValue {
-  vehicle: Vehicle;
+  loaded: boolean;
+  error: string | null;
+  vehicle: Vehicle | null;
   setVehicle: (v: Vehicle) => void;
+  addVehicle: (v: Omit<Vehicle, 'id'>) => Promise<void>;
   deals: Deal[];
   shops: Shop[];
   linkedShops: Shop[];
   serviceLog: ServiceEntry[];
   claims: Claim[];
-  claimDeal: (dealId: string) => string;
-  advanceClaim: (claimId: string, toStatus: 'contacted' | 'confirmed' | 'expired') => void;
-  cancelClaim: (claimId: string) => void;
-  resetAll: () => void;
+  claimDeal: (dealId: string) => Promise<string>;
+  advanceClaim: (claimId: string, toStatus: 'contacted' | 'confirmed' | 'expired') => Promise<void>;
+  cancelClaim: (claimId: string) => Promise<void>;
   appointments: Appointment[];
-  bookAppointment: (appt: Omit<Appointment, 'id' | 'bookedAt' | 'status'>) => string;
-  cancelAppointment: (id: string) => void;
+  bookAppointment: (appt: Omit<Appointment, 'id' | 'bookedAt' | 'status'>) => Promise<string>;
+  cancelAppointment: (id: string) => Promise<void>;
   now: number;
-  simMinutes: number;
-  setSimMinutes: (m: number) => void;
 }
 
 const StoreContext = createContext<StoreValue | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [vehicle, setVehicle] = useState<Vehicle>(SEED_VEHICLE);
-  const [claims, setClaims] = useState<Claim[]>([]);
+  const [loaded,       setLoaded]       = useState(false);
+  const [error,        setError]        = useState<string | null>(null);
+  const [vehicle,      setVehicle]      = useState<Vehicle | null>(null);
+  const [vehicleId,    setVehicleId]    = useState<string | null>(null);
+  const [shops,        setShops]        = useState<Shop[]>([]);
+  const [deals,        setDeals]        = useState<Deal[]>([]);
+  const [serviceLog,   setServiceLog]   = useState<ServiceEntry[]>([]);
+  const [claims,       setClaims]       = useState<Claim[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [simMinutes, setSimMinutes] = useState(0);
   const [, setTick] = useState(0);
 
+  // Tick every second for claim countdown
   useEffect(() => {
-    const t = setInterval(() => setTick(x => x + 1), 1000);
+    const t = setInterval(() => setTick(x => x + 1), 1_000);
     return () => clearInterval(t);
   }, []);
 
-  const now = Date.now() + simMinutes * 60_000;
-
+  // ── Initial data load ────────────────────────────────────────────
   useEffect(() => {
+    if (!BACKEND_LIVE) {
+      // Demo mode: use seed data
+      setShops(SEED_SHOPS);
+      setDeals(SEED_DEALS);
+      setServiceLog(SEED_SERVICE_LOG);
+      setVehicle(SEED_VEHICLE);
+      setLoaded(true);
+      return;
+    }
+
+    async function load() {
+      try {
+        // Shops
+        const { data: rawShops } = await client.models.Shop.list();
+        const shopMap: Record<string, Shop> = {};
+        const mappedShops = rawShops.map(s => { const m = mapShop(s); shopMap[m.id] = m; return m; });
+        setShops(mappedShops.length ? mappedShops : SEED_SHOPS);
+
+        const activeShopMap = mappedShops.length
+          ? Object.fromEntries(mappedShops.map(s => [s.id, s]))
+          : Object.fromEntries(SEED_SHOPS.map(s => [s.id, s]));
+
+        // Deals
+        const { data: rawDeals } = await client.models.Deal.list({ filter: { active: { eq: true } } });
+        setDeals(rawDeals.length ? rawDeals.map(d => mapDeal(d, activeShopMap)) : SEED_DEALS);
+
+        // Vehicle (owner-filtered)
+        const { data: rawVehicles } = await client.models.Vehicle.list();
+        const firstVehicle = rawVehicles[0];
+        if (firstVehicle) {
+          const v = firstVehicle;
+          setVehicleId(v.id);
+          setVehicle(mapVehicle(v));
+
+          // Service log for this vehicle
+          const { data: rawLog } = await client.models.ServiceLogEntry.list({
+            filter: { vehicleId: { eq: v.id } },
+          });
+          setServiceLog(rawLog.map(e => mapServiceEntry(e, activeShopMap)));
+        }
+
+        // Claims (owner-filtered)
+        const { data: rawClaims } = await client.models.Claim.list();
+        setClaims(rawClaims.map(mapClaim));
+
+        // Appointments (owner-filtered)
+        const { data: rawAppts } = await client.models.Appointment.list();
+        setAppointments(rawAppts.map(mapAppointment));
+
+        setLoaded(true);
+      } catch (err: any) {
+        console.error('Store load error:', err);
+        setError(err?.message ?? 'Failed to load data');
+        // Fall back to seed data so the app is usable
+        setShops(SEED_SHOPS);
+        setDeals(SEED_DEALS);
+        setServiceLog(SEED_SERVICE_LOG);
+        setVehicle(SEED_VEHICLE);
+        setLoaded(true);
+      }
+    }
+
+    load();
+  }, []);
+
+  // ── Expire awaiting claims ───────────────────────────────────────
+  useEffect(() => {
+    const now = Date.now();
     setClaims(prev => prev.map(c => {
       if (c.status !== 'awaiting') return c;
       if (now - c.claimedAt > 24 * 60 * 60_000) {
@@ -122,56 +289,114 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       }
       return c;
     }));
-  }, [now]);
+  }, [Math.floor(Date.now() / 60_000)]);
 
-  const claimDeal = useCallback((dealId: string) => {
-    const id = 'c-' + Date.now();
-    setClaims(prev => [...prev, { id, dealId, claimedAt: Date.now() + simMinutes * 60_000, status: 'awaiting' }]);
-    return id;
-  }, [simMinutes]);
+  // ── Mutations ────────────────────────────────────────────────────
+  const addVehicle = useCallback(async (v: Omit<Vehicle, 'id'>) => {
+    if (!BACKEND_LIVE) { setVehicle(v); return; }
+    const { data: created } = await client.models.Vehicle.create({
+      vin: v.vin, year: v.year, make: v.make, model: v.model,
+      engine: v.engine, plate: v.plate, mileage: v.mileage,
+    });
+    if (created) { setVehicleId(created.id); setVehicle(mapVehicle(created)); }
+  }, []);
 
-  const advanceClaim = useCallback((claimId: string, toStatus: 'contacted' | 'confirmed' | 'expired') => {
-    setClaims(prev => prev.map(c => {
-      if (c.id !== claimId) return c;
-      const t = Date.now() + simMinutes * 60_000;
-      if (toStatus === 'contacted') return { ...c, status: 'contacted' as const, contactedAt: t };
-      if (toStatus === 'confirmed') return { ...c, status: 'confirmed' as const, confirmedAt: t };
-      if (toStatus === 'expired')   return { ...c, status: 'expired' as const,   expiredAt: t };
-      return c;
-    }));
-  }, [simMinutes]);
+  const claimDeal = useCallback(async (dealId: string): Promise<string> => {
+    const deal = deals.find(d => d.id === dealId);
+    if (!deal) throw new Error('Deal not found');
 
-  const cancelClaim = useCallback((claimId: string) => {
+    if (!BACKEND_LIVE) {
+      const id = 'c-' + Date.now();
+      setClaims(prev => [...prev, { id, dealId, claimedAt: Date.now(), status: 'awaiting' }]);
+      return id;
+    }
+
+    const { data: claim } = await client.models.Claim.create({
+      dealId,
+      shopId: deal.shopId,
+      status: 'awaiting',
+      claimedAt: new Date().toISOString(),
+    });
+    if (!claim) throw new Error('Failed to create claim');
+
+    setClaims(prev => [...prev, mapClaim(claim)]);
+
+    // Fire-and-forget: notify the shop via Lambda
+    client.mutations.notifyShopOfClaim({
+      claimId: claim.id,
+      shopId: deal.shopId,
+      dealOffer: deal.offer,
+    }).catch(e => console.warn('Notification failed:', e));
+
+    return claim.id;
+  }, [deals]);
+
+  const advanceClaim = useCallback(async (claimId: string, toStatus: 'contacted' | 'confirmed' | 'expired') => {
+    const now = new Date().toISOString();
+    if (!BACKEND_LIVE) {
+      setClaims(prev => prev.map(c => c.id !== claimId ? c : {
+        ...c, status: toStatus,
+        ...(toStatus === 'contacted' ? { contactedAt: Date.now() } : {}),
+        ...(toStatus === 'confirmed' ? { confirmedAt: Date.now() } : {}),
+        ...(toStatus === 'expired'   ? { expiredAt:   Date.now() } : {}),
+      }));
+      return;
+    }
+    const update: Record<string, string> = { id: claimId, status: toStatus };
+    if (toStatus === 'contacted') update.contactedAt = now;
+    if (toStatus === 'confirmed') update.confirmedAt = now;
+    if (toStatus === 'expired')   update.expiredAt   = now;
+    const { data: updated } = await client.models.Claim.update(update as any);
+    if (updated) setClaims(prev => prev.map(c => c.id === claimId ? mapClaim(updated) : c));
+  }, []);
+
+  const cancelClaim = useCallback(async (claimId: string) => {
+    if (!BACKEND_LIVE) { setClaims(prev => prev.filter(c => c.id !== claimId)); return; }
+    await client.models.Claim.update({ id: claimId, status: 'cancelled' } as any);
     setClaims(prev => prev.filter(c => c.id !== claimId));
   }, []);
 
-  const resetAll = useCallback(() => {
-    setClaims([]);
-    setAppointments([]);
-    setSimMinutes(0);
-  }, []);
+  const bookAppointment = useCallback(async (
+    appt: Omit<Appointment, 'id' | 'bookedAt' | 'status'>,
+  ): Promise<string> => {
+    if (!BACKEND_LIVE) {
+      const id = 'a-' + Date.now();
+      setAppointments(prev => [...prev, { id, ...appt, bookedAt: Date.now(), status: 'pending' }]);
+      return id;
+    }
+    const { data: created } = await client.models.Appointment.create({
+      shopId: appt.shopId,
+      ...(vehicleId ? { vehicleId } : {}),
+      service: appt.service,
+      date: appt.date,
+      time: appt.time,
+      notes: appt.notes,
+      status: 'pending',
+      bookedAt: new Date().toISOString(),
+    });
+    if (!created) throw new Error('Failed to book appointment');
+    setAppointments(prev => [...prev, mapAppointment(created)]);
+    return created.id;
+  }, [vehicleId]);
 
-  const bookAppointment = useCallback((appt: Omit<Appointment, 'id' | 'bookedAt' | 'status'>) => {
-    const id = 'a-' + Date.now();
-    setAppointments(prev => [...prev, { id, ...appt, bookedAt: Date.now() + simMinutes * 60_000, status: 'pending' }]);
-    return id;
-  }, [simMinutes]);
-
-  const cancelAppointment = useCallback((id: string) => {
+  const cancelAppointment = useCallback(async (id: string) => {
+    if (!BACKEND_LIVE) { setAppointments(prev => prev.filter(a => a.id !== id)); return; }
+    await client.models.Appointment.update({ id, status: 'cancelled' } as any);
     setAppointments(prev => prev.filter(a => a.id !== id));
   }, []);
 
-  const deals = useMemo(() => SEED_DEALS, []);
+  const linkedShops = shops.filter(s => {
+    const hasVisit = serviceLog.some(e => e.shopId === s.id);
+    return hasVisit || s.linked;
+  });
 
   const value: StoreValue = {
-    vehicle, setVehicle,
-    deals,
-    shops: SEED_SHOPS,
-    linkedShops: SEED_SHOPS.filter(s => s.linked),
-    serviceLog: SEED_SERVICE_LOG,
-    claims, claimDeal, advanceClaim, cancelClaim, resetAll,
+    loaded, error,
+    vehicle, setVehicle, addVehicle,
+    deals, shops, linkedShops, serviceLog,
+    claims, claimDeal, advanceClaim, cancelClaim,
     appointments, bookAppointment, cancelAppointment,
-    now, simMinutes, setSimMinutes,
+    now: Date.now(),
   };
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

@@ -130,6 +130,7 @@ export function FindShopScreen({ go }: { go: GoFn }) {
 export function ShopDetailScreen({ go, shopId }: { go: GoFn; shopId?: string }) {
   const { shops, serviceLog } = useStore();
   const shop = findShop(shops, shopId ?? '') ?? shops[0];
+  if (!shop) return <div className="dv-screen"><div className="dv-empty"><h3>Shop not found</h3></div></div>;
   const visits = serviceLog.filter(e => e.shopId === shop.id);
 
   return (
@@ -252,19 +253,22 @@ export function BookAppointmentScreen({ go, shopId }: { go: GoFn; shopId?: strin
 
   const TIMES = ['8:00 am', '9:30 am', '11:00 am', '1:00 pm', '2:30 pm', '4:00 pm'];
 
-  const [service, setService] = useState(SERVICES[0]);
-  const [day, setDay]         = useState(DAYS[1].iso);
-  const [time, setTime]       = useState(TIMES[2]);
+  const [service, setService] = useState(SERVICES[0] ?? 'Oil change');
+  const [day, setDay]         = useState(DAYS[1]?.iso ?? DAYS[0]?.iso ?? '');
+  const [time, setTime]       = useState(TIMES[2] ?? TIMES[0] ?? '');
   const [notes, setNotes]     = useState('');
   const [booking, setBooking] = useState(false);
 
-  const handleBook = () => {
+  if (!shop) return <div className="dv-screen"><div className="dv-empty"><h3>Shop not found</h3></div></div>;
+
+  const handleBook = async () => {
     setBooking(true);
-    setTimeout(() => {
-      const id = bookAppointment({ shopId: shop.id, service, date: day, time, notes });
+    try {
+      const id = await bookAppointment({ shopId: shop.id, service, date: day, time, notes });
       go('booking-confirm', id);
+    } finally {
       setBooking(false);
-    }, 600);
+    }
   };
 
   return (

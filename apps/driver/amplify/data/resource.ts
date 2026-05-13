@@ -1,4 +1,5 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
+import { notifyFn } from "../functions/notifications/resource";
 
 /**
  * Revv data model.
@@ -67,6 +68,7 @@ const schema = a.schema({
       honorRate: a.integer(),
       rating: a.float(),
       reviewsCount: a.integer(),
+      contactPhone: a.string(),
       members: a.hasMany("ShopMember", "shopId"),
       deals: a.hasMany("Deal", "shopId"),
       appointments: a.hasMany("Appointment", "shopId"),
@@ -178,6 +180,18 @@ const schema = a.schema({
       allow.group("shop_member").to(["create", "read"]),
       allow.group("admin"),
     ]),
+
+  // ── Custom mutations ───────────────────────────────────────────────
+  notifyShopOfClaim: a
+    .mutation()
+    .arguments({
+      claimId:   a.string().required(),
+      shopId:    a.string().required(),
+      dealOffer: a.string(),
+    })
+    .returns(a.string())
+    .handler(a.handler.function(notifyFn))
+    .authorization((allow) => [allow.authenticated()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
