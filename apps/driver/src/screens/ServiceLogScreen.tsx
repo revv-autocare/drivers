@@ -1,0 +1,80 @@
+import { useMemo } from 'react';
+import type { GoFn } from '../types';
+import { useStore, categoryIcon } from '../store';
+import { DetailHead, Pill } from '../components';
+
+export function ServiceLogScreen({ go }: { go: GoFn }) {
+  const { vehicle, serviceLog } = useStore();
+
+  const grouped = useMemo(() => {
+    const out: Record<string, typeof serviceLog> = {};
+    serviceLog.forEach(e => {
+      const y = e.date.slice(0, 4);
+      (out[y] = out[y] ?? []).push(e);
+    });
+    return Object.entries(out).sort((a, b) => b[0].localeCompare(a[0]));
+  }, [serviceLog]);
+
+  const totalSpent = serviceLog.reduce((s, e) => s + (e.cost ?? 0), 0);
+
+  return (
+    <div className="dv-screen" style={{ background: '#fff' }}>
+      <DetailHead title="Service log" onBack={() => go('home')}/>
+
+      <div style={{ padding: '18px 16px 14px', borderBottom: '1px solid var(--border-subtle)' }}>
+        <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 600 }}>
+          {vehicle.year} {vehicle.make} {vehicle.model}
+        </div>
+        <div style={{ display: 'flex', gap: 24, marginTop: 12 }}>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 700 }}>{serviceLog.length}</div>
+            <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 1 }}>Services logged</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 700 }}>${totalSpent}</div>
+            <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 1 }}>Total spent</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 700 }}>{vehicle.mileage.toLocaleString()}</div>
+            <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 1 }}>Current km</div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+        {grouped.map(([year, items]) => (
+          <div key={year} style={{ marginBottom: 22 }}>
+            <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 600, marginBottom: 10 }}>
+              {year}
+            </div>
+            {items.map(e => (
+              <div key={e.id} className="dv-item" style={{ alignItems: 'flex-start' }}>
+                <div className="badge" style={{ background: e.via === 'auto' ? 'var(--color-success-50)' : 'var(--color-neutral-100)' }}>
+                  <img src={categoryIcon(e.category)} style={{ width: 18, opacity: .85 }} alt=""/>
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="ttl">{e.what}</div>
+                  <div className="meta">{e.shop ?? 'Self-logged'} · {e.date} · {e.mileage.toLocaleString()} km</div>
+                  {e.notes && (
+                    <div style={{ fontSize: 12, color: 'var(--fg-secondary)', marginTop: 6, lineHeight: 1.5, paddingTop: 6, borderTop: '1px solid var(--border-subtle)' }}>
+                      {e.notes}
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', gap: 6, marginTop: 8, alignItems: 'center' }}>
+                    {e.via === 'auto'   && <Pill kind="success">Auto-logged</Pill>}
+                    {e.via === 'manual' && <Pill kind="neutral">Manual</Pill>}
+                  </div>
+                </div>
+                {e.cost && <div className="price">${e.cost}</div>}
+              </div>
+            ))}
+          </div>
+        ))}
+
+        <button className="dv-btn dv-btn--secondary" style={{ width: '100%', marginTop: 8 }}>
+          + Add service manually
+        </button>
+      </div>
+    </div>
+  );
+}
