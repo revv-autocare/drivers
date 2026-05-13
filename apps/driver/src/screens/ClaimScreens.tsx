@@ -230,7 +230,7 @@ export function ClaimDetailScreen({ go, claimId }: { go: GoFn; claimId?: string 
 
       <div className="dv-actbar">
         {status === 'awaiting' && (
-          <button className="dv-btn dv-btn--secondary" style={{ flex: 1 }} onClick={() => { cancelClaim(claim.id); go('claims'); }}>
+          <button className="dv-btn dv-btn--secondary" style={{ flex: 1 }} onClick={async () => { await cancelClaim(claim.id); go('claims'); }}>
             Cancel claim
           </button>
         )}

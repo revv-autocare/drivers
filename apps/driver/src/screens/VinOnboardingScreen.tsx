@@ -1,29 +1,94 @@
 import { useState } from 'react';
 import type { GoFn } from '../types';
+import type { DecodedVin } from '../api';
+import { decodeVin } from '../api';
+import { useStore } from '../store';
 import { BackArrow } from '../components';
 
 export function VinOnboardingScreen({ go }: { go: GoFn }) {
-  const [step, setStep] = useState<'enter' | 'confirm'>('enter');
-  const [vin, setVin] = useState('');
-  const [decoding, setDecoding] = useState(false);
+  const { addVehicle } = useStore();
 
-  const handleDecode = () => {
-    if (vin.length < 17) setVin('1HGCM82633A004352');
-    setDecoding(true);
-    setTimeout(() => { setDecoding(false); setStep('confirm'); }, 800);
+  const [step,     setStep]     = useState<'enter' | 'confirm'>('enter');
+  const [vin,      setVin]      = useState('');
+  const [plate,    setPlate]    = useState('');
+  const [mileage,  setMileage]  = useState('');
+  const [decoded,  setDecoded]  = useState<DecodedVin | null>(null);
+  const [loading,  setLoading]  = useState(false);
+  const [saving,   setSaving]   = useState(false);
+  const [errMsg,   setErrMsg]   = useState('');
+
+  const handleDecode = async () => {
+    const raw = vin.trim();
+    if (raw.length < 17) {
+      setErrMsg('VIN must be 17 characters.');
+      return;
+    }
+    setErrMsg('');
+    setLoading(true);
+    try {
+      const result = await decodeVin(raw);
+      setDecoded(result);
+      setStep('confirm');
+    } catch (err: any) {
+      setErrMsg(err?.message ?? 'Could not decode VIN. Please check and try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Quick demo shortcut — tap scan to pre-fill a known VIN
+  const handleScanDemo = async () => {
+    setVin('1HGCM82633A004352');
+    setErrMsg('');
+    setLoading(true);
+    try {
+      const result = await decodeVin('1HGCM82633A004352');
+      setDecoded(result);
+      setStep('confirm');
+    } catch (err: any) {
+      setErrMsg(err?.message ?? 'Demo VIN decode failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConfirm = async () => {
+    if (!decoded) return;
+    setSaving(true);
+    setErrMsg('');
+    try {
+      await addVehicle({
+        vin: vin.trim().toUpperCase(),
+        year: decoded.year,
+        make: decoded.make,
+        model: decoded.model,
+        engine: decoded.engine,
+        plate: plate.trim().toUpperCase() || 'BC ???-???',
+        mileage: parseInt(mileage.replace(/\D/g, ''), 10) || 0,
+      });
+      go('home');
+    } catch (err: any) {
+      setErrMsg(err?.message ?? 'Failed to save vehicle. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <div className="dv-screen">
       <div className="dv-dethead">
-        <button className="back" onClick={() => go('welcome')}><BackArrow/></button>
+        <button className="back" onClick={() => step === 'confirm' ? setStep('enter') : undefined}>
+          <BackArrow/>
+        </button>
         <h3>Add your car</h3>
         <span style={{ marginLeft: 'auto', fontSize: 12, color: 'var(--fg-tertiary)' }}>
           Step {step === 'enter' ? '1' : '2'} of 2
         </span>
       </div>
 
-      <div style={{ padding: '20px 16px', flex: 1 }}>
+      <div style={{ padding: '20px 16px', flex: 1, overflowY: 'auto' }}>
+
+        {/* ── Step 1: Enter / scan VIN ─────────────────────── */}
         {step === 'enter' && (
           <div>
             <h2 style={{ fontSize: 22, margin: '0 0 6px', letterSpacing: '-0.01em' }}>Find your VIN</h2>
@@ -31,7 +96,7 @@ export function VinOnboardingScreen({ go }: { go: GoFn }) {
               The 17-character vehicle ID is on your dashboard, door jamb, or registration.
             </p>
 
-            <div className="dv-vinscan" onClick={handleDecode}>
+            <div className="dv-vinscan" onClick={handleScanDemo}>
               <div className="ic">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-600)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
@@ -51,24 +116,34 @@ export function VinOnboardingScreen({ go }: { go: GoFn }) {
               <label>17-character VIN</label>
               <input
                 value={vin}
-                onChange={e => setVin(e.target.value.toUpperCase().slice(0, 17))}
+                onChange={e => { setVin(e.target.value.toUpperCase().slice(0, 17)); setErrMsg(''); }}
                 placeholder="e.g. 1HGCM82633A004352"
                 maxLength={17}
+                autoComplete="off"
+                style={{ fontFamily: 'var(--font-mono)', letterSpacing: '.08em' }}
               />
-              <span className="helper">{vin.length}/17 characters</span>
+              <span className="helper" style={{ color: errMsg ? 'var(--color-error-600)' : undefined }}>
+                {errMsg || `${vin.length}/17 characters`}
+              </span>
             </div>
 
-            <button className="dv-btn dv-btn--primary" style={{ width: '100%', marginTop: 12 }} onClick={handleDecode} disabled={decoding}>
-              {decoding ? <><div className="dv-spinner"/>Decoding…</> : 'Continue'}
+            <button
+              className="dv-btn dv-btn--primary"
+              style={{ width: '100%', marginTop: 12 }}
+              onClick={handleDecode}
+              disabled={loading || vin.length < 17}
+            >
+              {loading ? <><div className="dv-spinner"/>Decoding…</> : 'Continue'}
             </button>
           </div>
         )}
 
-        {step === 'confirm' && (
+        {/* ── Step 2: Confirm + enter plate & mileage ──────── */}
+        {step === 'confirm' && decoded && (
           <div>
             <h2 style={{ fontSize: 22, margin: '0 0 6px', letterSpacing: '-0.01em' }}>We found your car</h2>
             <p style={{ fontSize: 14, color: 'var(--fg-secondary)', margin: '0 0 22px', lineHeight: 1.5 }}>
-              Decoded from your VIN via NHTSA. Confirm and we'll add it to your garage.
+              Decoded via NHTSA. Confirm the details below and we'll add it to your garage.
             </p>
 
             <div className="dv-vincard">
@@ -78,24 +153,45 @@ export function VinOnboardingScreen({ go }: { go: GoFn }) {
                   <circle cx="7" cy="16" r="2"/><circle cx="17" cy="16" r="2"/>
                 </svg>
               </div>
-              <div className="nm">2018 Toyota Corolla</div>
-              <div className="meta">1.8L Inline-4 · BC RVV-204</div>
+              <div className="nm">{decoded.year} {decoded.make} {decoded.model}</div>
+              <div className="meta">{decoded.engine || 'Engine TBD'}</div>
               <div style={{ marginTop: 14 }}>
                 <div className="info-row">
                   <span className="l">VIN</span>
-                  <span className="v" style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>1HGCM82633A004352</span>
+                  <span className="v" style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>{vin.toUpperCase()}</span>
                 </div>
-                <div className="info-row"><span className="l">Body</span><span className="v">Sedan</span></div>
-                <div className="info-row"><span className="l">Engine</span><span className="v">1.8L I4 · 132 hp</span></div>
               </div>
             </div>
 
-            <div style={{ marginTop: 20, display: 'flex', gap: 10 }}>
+            <div className="dv-field" style={{ marginTop: 18 }}>
+              <label>Licence plate <span style={{ fontWeight: 400, color: 'var(--fg-tertiary)' }}>(optional)</span></label>
+              <input
+                value={plate}
+                onChange={e => setPlate(e.target.value.toUpperCase().slice(0, 10))}
+                placeholder="e.g. BC RVV-204"
+              />
+            </div>
+
+            <div className="dv-field">
+              <label>Current mileage (km) <span style={{ fontWeight: 400, color: 'var(--fg-tertiary)' }}>(optional)</span></label>
+              <input
+                value={mileage}
+                onChange={e => setMileage(e.target.value.replace(/\D/g, '').slice(0, 7))}
+                placeholder="e.g. 84120"
+                inputMode="numeric"
+              />
+            </div>
+
+            {errMsg && (
+              <div style={{ fontSize: 13, color: 'var(--color-error-600)', marginBottom: 12 }}>{errMsg}</div>
+            )}
+
+            <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
               <button className="dv-btn dv-btn--secondary" style={{ flex: 1 }} onClick={() => setStep('enter')}>
                 Not my car
               </button>
-              <button className="dv-btn dv-btn--primary" style={{ flex: 2 }} onClick={() => go('home')}>
-                Yes, add to garage
+              <button className="dv-btn dv-btn--primary" style={{ flex: 2 }} onClick={handleConfirm} disabled={saving}>
+                {saving ? <><div className="dv-spinner"/>Saving…</> : 'Yes, add to garage'}
               </button>
             </div>
           </div>

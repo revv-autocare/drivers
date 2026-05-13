@@ -17,6 +17,7 @@ export function ServiceLogScreen({ go }: { go: GoFn }) {
 
   const totalSpent = serviceLog.reduce((s, e) => s + (e.cost ?? 0), 0);
 
+  if (!vehicle) return null;
   return (
     <div className="dv-screen" style={{ background: '#fff' }}>
       <DetailHead title="Service log" onBack={() => go('home')}/>

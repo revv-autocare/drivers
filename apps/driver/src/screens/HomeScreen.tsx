@@ -5,6 +5,7 @@ import { TopBar, DealCard, Pill, BottomNav } from '../components';
 export function HomeScreen({ go }: { go: GoFn }) {
   const { vehicle, claims, deals } = useStore();
   const activeClaims = claims.filter(c => c.status === 'awaiting' || c.status === 'contacted').length;
+  if (!vehicle) return null;
 
   return (
     <div className="dv-screen">

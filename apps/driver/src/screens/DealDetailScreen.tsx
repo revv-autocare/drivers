@@ -15,21 +15,28 @@ const BG_BY_CAT: Record<string, string> = {
 export function DealDetailScreen({ go, dealId }: { go: GoFn; dealId?: string }) {
   const { deals, claims, claimDeal, vehicle } = useStore();
   const deal = findDeal(deals, dealId ?? '') ?? deals[0];
-  const existingClaim = getClaimForDeal(claims, deal.id);
 
+  const [claiming, setClaiming] = useState(false);
+  const [claimErr, setClaimErr] = useState('');
+
+  if (!deal) return <div className="dv-screen"><div className="dv-empty"><h3>Deal not found</h3></div></div>;
+
+  const existingClaim = getClaimForDeal(claims, deal.id);
   const pct = deal.priceWas && deal.priceNow
     ? Math.round((1 - deal.priceNow / deal.priceWas) * 100)
     : deal.pct;
 
-  const [claiming, setClaiming] = useState(false);
-
-  const handleClaim = () => {
+  const handleClaim = async () => {
     setClaiming(true);
-    setTimeout(() => {
-      const id = claimDeal(deal.id);
+    setClaimErr('');
+    try {
+      const id = await claimDeal(deal.id);
       go('claim-confirm', id);
+    } catch (err: any) {
+      setClaimErr(err?.message ?? 'Failed to claim deal. Please try again.');
+    } finally {
       setClaiming(false);
-    }, 600);
+    }
   };
 
   return (
@@ -114,8 +121,8 @@ export function DealDetailScreen({ go, dealId }: { go: GoFn; dealId?: string }) 
             </div>
             <div style={{ flex: 1 }}>
               <div className="label">FOR YOUR CAR</div>
-              <div className="value">{vehicle.year} {vehicle.make} {vehicle.model}</div>
-              <div style={{ fontSize: 12, color: 'var(--fg-secondary)', marginTop: 2 }}>VIN ending {vehicle.vin.slice(-6)}</div>
+              <div className="value">{vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : 'Your vehicle'}</div>
+              <div style={{ fontSize: 12, color: 'var(--fg-secondary)', marginTop: 2 }}>{vehicle ? `VIN ending ${vehicle.vin.slice(-6)}` : ''}</div>
             </div>
           </div>
         </div>
@@ -132,6 +139,9 @@ export function DealDetailScreen({ go, dealId }: { go: GoFn; dealId?: string }) 
         </div>
       </div>
 
+      {claimErr && (
+        <div style={{ padding: '0 16px 8px', fontSize: 13, color: 'var(--color-error-600)' }}>{claimErr}</div>
+      )}
       <div className="dv-actbar">
         <button className="dv-btn dv-btn--ghost-icon">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

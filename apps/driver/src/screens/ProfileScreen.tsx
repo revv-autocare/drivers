@@ -4,6 +4,7 @@ import { Avatar, BackArrow, BottomNav } from '../components';
 
 export function ProfileScreen({ go }: { go: GoFn }) {
   const { vehicle, linkedShops, serviceLog } = useStore();
+  if (!vehicle) return null;
 
   return (
     <div className="dv-screen">
