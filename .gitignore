@@ -44,3 +44,4 @@ coverage/
 # tarballs / archives
 revv-driver-bundle.zip
 *.tgz
+apps/driver/tsconfig.tsbuildinfo
