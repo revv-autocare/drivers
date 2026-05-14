@@ -1,17 +1,16 @@
 import type { GoFn } from '../types';
 import { useStore } from '../store';
-import { DetailHead, BackArrow } from '../components';
+import { BackArrow, BottomNav } from '../components';
 
 export function MyShopsScreen({ go }: { go: GoFn }) {
   const { linkedShops, serviceLog } = useStore();
 
   return (
     <div className="dv-screen" style={{ background: '#fff' }}>
-      <DetailHead title="My shops" onBack={() => go('home')}/>
-
-      <div style={{ padding: '18px 16px 4px' }}>
-        <p style={{ fontSize: 13, color: 'var(--fg-secondary)', margin: 0, lineHeight: 1.5 }}>
-          Shops you've used. They auto-log services and you can re-book in one tap.
+      <div style={{ padding: '60px 20px 18px', background: '#fff', borderBottom: '1px solid var(--border-subtle)' }}>
+        <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700, letterSpacing: '-0.01em' }}>My shops</h2>
+        <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--fg-secondary)' }}>
+          Shops you've used — auto-log services, re-book in one tap.
         </p>
       </div>
 
@@ -22,22 +21,11 @@ export function MyShopsScreen({ go }: { go: GoFn }) {
           return (
             <div
               key={s.id}
-              style={{
-                background: '#fff',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: 14,
-                padding: 16,
-                marginBottom: 12,
-                cursor: 'pointer',
-              }}
+              style={{ background: '#fff', border: '1px solid var(--border-subtle)', borderRadius: 14, padding: 16, marginBottom: 12, cursor: 'pointer' }}
               onClick={() => go('shop-detail', s.id)}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{
-                  width: 44, height: 44, borderRadius: 10, background: s.logoColor, color: '#fff',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 13, fontWeight: 700,
-                }}>{s.logo}</div>
+                <div style={{ width: 44, height: 44, borderRadius: 10, background: s.logoColor, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700 }}>{s.logo}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <div style={{ fontSize: 15, fontWeight: 600 }}>{s.name}</div>
@@ -47,9 +35,7 @@ export function MyShopsScreen({ go }: { go: GoFn }) {
                       </svg>
                     )}
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--fg-secondary)', marginTop: 2 }}>
-                    {s.neighborhood} · {s.distanceKm} km
-                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--fg-secondary)', marginTop: 2 }}>{s.neighborhood} · {s.distanceKm} km</div>
                 </div>
                 <BackArrow/>
               </div>
@@ -73,18 +59,15 @@ export function MyShopsScreen({ go }: { go: GoFn }) {
         })}
 
         <div
-          style={{
-            marginTop: 6, padding: 16,
-            border: '1.5px dashed var(--color-brand-200)',
-            borderRadius: 12, background: 'var(--color-brand-50)',
-            textAlign: 'center', cursor: 'pointer',
-          }}
+          style={{ marginTop: 6, padding: 16, border: '1.5px dashed var(--color-brand-200)', borderRadius: 12, background: 'var(--color-brand-50)', textAlign: 'center', cursor: 'pointer' }}
           onClick={() => go('find-shop')}
         >
           <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-brand-700)' }}>+ Find a new shop</div>
           <div style={{ fontSize: 12, color: 'var(--color-brand-700)', marginTop: 3, opacity: .8 }}>Browse all Revv shops near you</div>
         </div>
       </div>
+
+      <BottomNav active="my-shops" go={go}/>
     </div>
   );
 }

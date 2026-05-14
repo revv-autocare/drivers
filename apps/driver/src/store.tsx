@@ -13,9 +13,19 @@ const BACKEND_LIVE = !outputs.data.url.includes('PLACEHOLDER');
 
 // ─── Seed data (fallback / demo mode) ───────────────────────────────────────
 export const SEED_VEHICLE: Vehicle = {
+  id: 'v1',
   vin: '1HGCM82633A004352',
   year: 2018, make: 'Toyota', model: 'Corolla', engine: '1.8L I4',
   plate: 'BC RVV-204', mileage: 84_120,
+  nickname: 'My Corolla',
+  trim: 'LE',
+  color: 'Silver',
+  drivetrain: 'FWD',
+  transmission: '6-speed CVT',
+  owners: 2,
+  nextServiceKm: 90_000,
+  purchasedYear: 2019,
+  primary: true,
 };
 
 export const SEED_SHOPS: Shop[] = [
@@ -177,8 +187,12 @@ interface StoreValue {
   loaded: boolean;
   error: string | null;
   vehicle: Vehicle | null;
+  vehicles: Vehicle[];
   setVehicle: (v: Vehicle) => void;
   addVehicle: (v: Omit<Vehicle, 'id'>) => Promise<void>;
+  setPrimaryVehicle: (vehicleId: string) => void;
+  unlockedHistoryIds: string[];
+  unlockHistory: (vehicleId: string) => void;
   deals: Deal[];
   shops: Shop[];
   linkedShops: Shop[];
@@ -196,15 +210,17 @@ interface StoreValue {
 const StoreContext = createContext<StoreValue | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [loaded,       setLoaded]       = useState(false);
-  const [error,        setError]        = useState<string | null>(null);
-  const [vehicle,      setVehicle]      = useState<Vehicle | null>(null);
-  const [vehicleId,    setVehicleId]    = useState<string | null>(null);
-  const [shops,        setShops]        = useState<Shop[]>([]);
-  const [deals,        setDeals]        = useState<Deal[]>([]);
-  const [serviceLog,   setServiceLog]   = useState<ServiceEntry[]>([]);
-  const [claims,       setClaims]       = useState<Claim[]>([]);
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [loaded,              setLoaded]              = useState(false);
+  const [error,               setError]               = useState<string | null>(null);
+  const [vehicle,             setVehicle]             = useState<Vehicle | null>(null);
+  const [vehicleId,           setVehicleId]           = useState<string | null>(null);
+  const [vehicles,            setVehicles]            = useState<Vehicle[]>([]);
+  const [unlockedHistoryIds,  setUnlockedHistoryIds]  = useState<string[]>([]);
+  const [shops,               setShops]               = useState<Shop[]>([]);
+  const [deals,               setDeals]               = useState<Deal[]>([]);
+  const [serviceLog,          setServiceLog]          = useState<ServiceEntry[]>([]);
+  const [claims,              setClaims]              = useState<Claim[]>([]);
+  const [appointments,        setAppointments]        = useState<Appointment[]>([]);
   const [, setTick] = useState(0);
 
   // Tick every second for claim countdown
@@ -221,6 +237,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setDeals(SEED_DEALS);
       setServiceLog(SEED_SERVICE_LOG);
       setVehicle(SEED_VEHICLE);
+      setVehicles([SEED_VEHICLE]);
       setLoaded(true);
       return;
     }
@@ -243,6 +260,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
         // Vehicle (owner-filtered)
         const { data: rawVehicles } = await client.models.Vehicle.list();
+        const mappedVehicles = rawVehicles.map(mapVehicle);
+        setVehicles(mappedVehicles.length ? mappedVehicles : [SEED_VEHICLE]);
         const firstVehicle = rawVehicles[0];
         if (firstVehicle) {
           const v = firstVehicle;
@@ -273,6 +292,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setDeals(SEED_DEALS);
         setServiceLog(SEED_SERVICE_LOG);
         setVehicle(SEED_VEHICLE);
+        setVehicles([SEED_VEHICLE]);
         setLoaded(true);
       }
     }
@@ -293,6 +313,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [Math.floor(Date.now() / 60_000)]);
 
   // ── Mutations ────────────────────────────────────────────────────
+  const setPrimaryVehicle = useCallback((vehicleId: string) => {
+    setVehicles(prev => prev.map(v => ({ ...v, primary: v.id === vehicleId })));
+    setVehicle(prev => prev ? { ...prev, primary: prev.id === vehicleId } : prev);
+  }, []);
+
+  const unlockHistory = useCallback((vehicleId: string) => {
+    setUnlockedHistoryIds(prev => prev.includes(vehicleId) ? prev : [...prev, vehicleId]);
+  }, []);
+
   const addVehicle = useCallback(async (v: Omit<Vehicle, 'id'>) => {
     if (!BACKEND_LIVE) { setVehicle(v); return; }
     const { data: created } = await client.models.Vehicle.create({
@@ -395,7 +424,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const value: StoreValue = {
     loaded, error,
-    vehicle, setVehicle, addVehicle,
+    vehicle, vehicles, setVehicle, addVehicle,
+    setPrimaryVehicle, unlockedHistoryIds, unlockHistory,
     deals, shops, linkedShops, serviceLog,
     claims, claimDeal, advanceClaim, cancelClaim,
     appointments, bookAppointment, cancelAppointment,

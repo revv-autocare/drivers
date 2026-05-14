@@ -6,6 +6,17 @@ export interface Vehicle {
   engine: string;
   plate: string;
   mileage: number;
+  // Extended fields for vehicle detail screen
+  id?: string;
+  nickname?: string;
+  trim?: string;
+  color?: string;
+  drivetrain?: string;
+  transmission?: string;
+  owners?: number;
+  nextServiceKm?: number;
+  purchasedYear?: number;
+  primary?: boolean;
 }
 
 export interface Shop {
@@ -92,11 +103,13 @@ export type ScreenName =
   | 'claim-detail'
   | 'profile'
   | 'service-log'
+  | 'service-detail'
   | 'my-shops'
   | 'find-shop'
   | 'shop-detail'
   | 'book'
-  | 'booking-confirm';
+  | 'booking-confirm'
+  | 'vehicle-detail';
 
 export type GoFn = (screen: ScreenName | -1, ctx?: string) => void;
 

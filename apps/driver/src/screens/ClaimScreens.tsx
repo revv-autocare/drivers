@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import type { GoFn } from '../types';
-import { useStore, findDeal, formatTimeLeft } from '../store';
-import { DetailHead, ClaimedRow, BottomNav } from '../components';
+import { useStore, findDeal, findShop, formatTimeLeft } from '../store';
+import { DetailHead, ClaimedRow, Pill, BottomNav } from '../components';
 
 // ─── Claim Confirm ───────────────────────────────────
 export function ClaimConfirmScreen({ go, claimId }: { go: GoFn; claimId?: string }) {
@@ -60,60 +61,162 @@ export function ClaimConfirmScreen({ go, claimId }: { go: GoFn; claimId?: string
   );
 }
 
-// ─── Claims List ─────────────────────────────────────
+// ─── My Bookings (Claims + Appointments) ─────────────
 export function ClaimsScreen({ go }: { go: GoFn }) {
-  const { claims, deals, now } = useStore();
+  const { claims, deals, appointments, shops, now } = useStore();
+  const [tab, setTab] = useState<'appointments' | 'claims'>('appointments');
+
   const sorted = [...claims].sort((a, b) => b.claimedAt - a.claimedAt);
   const active = sorted.filter(c => c.status === 'awaiting' || c.status === 'contacted' || c.status === 'confirmed');
   const past   = sorted.filter(c => c.status === 'expired' || c.status === 'no_response');
 
+  const sortedAppts = [...appointments].sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  const upcoming = sortedAppts.filter(a => a.status !== 'completed' && a.status !== 'cancelled');
+  const totalBookings = appointments.length + claims.length;
+
+  const pillMap: Record<string, { kind: 'warning' | 'success' | 'neutral'; label: string }> = {
+    pending:   { kind: 'warning', label: 'Awaiting confirmation' },
+    confirmed: { kind: 'success', label: 'Confirmed' },
+    completed: { kind: 'neutral', label: 'Completed' },
+  };
+
   return (
     <div className="dv-screen">
-      <div style={{ padding: '16px 20px 14px', background: '#fff', borderBottom: '1px solid var(--border-subtle)' }}>
-        <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700, letterSpacing: '-0.01em' }}>My claims</h2>
+      <div style={{ padding: '60px 20px 14px', background: '#fff', borderBottom: '1px solid var(--border-subtle)' }}>
+        <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700, letterSpacing: '-0.01em' }}>My bookings</h2>
         <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--fg-secondary)' }}>
-          Track shops responding to your claimed deals
+          Appointments you've booked and deals you've claimed
         </p>
       </div>
 
-      {claims.length === 0 ? (
+      {totalBookings === 0 ? (
         <div className="dv-empty">
           <div className="ic">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--fg-tertiary)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+              <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
             </svg>
           </div>
-          <h3>No claims yet</h3>
-          <p>When you claim a deal, it'll show here. Shops have 24 hours to reach out.</p>
-          <button className="dv-btn dv-btn--primary" style={{ marginTop: 20 }} onClick={() => go('deals')}>
-            Browse deals
-          </button>
+          <h3>Nothing booked yet</h3>
+          <p>Book an appointment with a shop, or claim a deal — both will land here.</p>
+          <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
+            <button className="dv-btn dv-btn--secondary" onClick={() => go('my-shops')}>Find a shop</button>
+            <button className="dv-btn dv-btn--primary" onClick={() => go('deals')}>Browse deals</button>
+          </div>
         </div>
       ) : (
-        <div style={{ padding: '16px', flex: 1, overflowY: 'auto' }}>
-          {active.length > 0 && (
-            <>
-              <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 600, marginBottom: 10 }}>
-                ACTIVE · {active.length}
+        <div style={{ padding: '14px 16px 16px', flex: 1, overflowY: 'auto' }}>
+          <div className="dv-segments">
+            <div className={'seg' + (tab === 'appointments' ? ' on' : '')} onClick={() => setTab('appointments')}>
+              Appointments
+              <span className="count">{appointments.length}</span>
+            </div>
+            <div className={'seg' + (tab === 'claims' ? ' on' : '')} onClick={() => setTab('claims')}>
+              Deal claims
+              <span className="count">{claims.length}</span>
+            </div>
+          </div>
+
+          {tab === 'appointments' && (
+            appointments.length === 0 ? (
+              <div style={{ padding: '32px 16px', textAlign: 'center' }}>
+                <p style={{ margin: '0 0 16px', fontSize: 13, color: 'var(--fg-secondary)', lineHeight: 1.5 }}>
+                  You haven't booked any appointments yet.
+                </p>
+                <button className="dv-btn dv-btn--primary" onClick={() => go('my-shops')}>Find a shop</button>
               </div>
-              {active.map(c => {
-                const deal = findDeal(deals, c.dealId);
-                if (!deal) return null;
-                return <ClaimedRow key={c.id} claim={c} deal={deal} now={now} onTap={id => go('claim-detail', id)}/>;
-              })}
-            </>
+            ) : (
+              <>
+                {upcoming.length > 0 && (
+                  <>
+                    <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 600, marginBottom: 10 }}>
+                      Upcoming · {upcoming.length}
+                    </div>
+                    {upcoming.map(a => {
+                      const shop = findShop(shops, a.shopId);
+                      if (!shop) return null;
+                      const [y, m, d] = a.date.split('-').map(Number);
+                      const dt = new Date(y!, (m ?? 1) - 1, d);
+                      const dateStr = dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                      const pill = pillMap[a.status] ?? pillMap['pending']!;
+                      return (
+                        <div key={a.id} className="dv-claim" onClick={() => go('booking-confirm', a.id)}>
+                          <div className="top-row">
+                            <span className="shop">{shop.name}</span>
+                            <Pill kind={pill.kind}>{pill.label}</Pill>
+                          </div>
+                          <div className="ttl">{a.service}</div>
+                          <div className="price-row">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: .7 }}>
+                              <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+                            </svg>
+                            <span>{dateStr}</span>
+                            <span>·</span>
+                            <span>{a.time}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+                {sortedAppts.filter(a => !upcoming.includes(a)).length > 0 && (
+                  <>
+                    <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 600, margin: '20px 0 10px' }}>Past</div>
+                    {sortedAppts.filter(a => !upcoming.includes(a)).map(a => {
+                      const shop = findShop(shops, a.shopId);
+                      if (!shop) return null;
+                      const [y, m, d] = a.date.split('-').map(Number);
+                      const dt = new Date(y!, (m ?? 1) - 1, d);
+                      const dateStr = dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                      const pill = pillMap[a.status] ?? pillMap['pending']!;
+                      return (
+                        <div key={a.id} className="dv-claim" onClick={() => go('booking-confirm', a.id)}>
+                          <div className="top-row">
+                            <span className="shop">{shop.name}</span>
+                            <Pill kind={pill.kind}>{pill.label}</Pill>
+                          </div>
+                          <div className="ttl">{a.service}</div>
+                          <div className="price-row"><span>{dateStr} · {a.time}</span></div>
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+              </>
+            )
           )}
-          {past.length > 0 && (
-            <>
-              <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 600, margin: '20px 0 10px' }}>
-                PAST
+
+          {tab === 'claims' && (
+            claims.length === 0 ? (
+              <div style={{ padding: '32px 16px', textAlign: 'center' }}>
+                <p style={{ margin: '0 0 16px', fontSize: 13, color: 'var(--fg-secondary)', lineHeight: 1.5 }}>
+                  You haven't claimed any deals yet.
+                </p>
+                <button className="dv-btn dv-btn--primary" onClick={() => go('deals')}>Browse deals</button>
               </div>
-              {past.map(c => {
-                const deal = findDeal(deals, c.dealId);
-                if (!deal) return null;
-                return <ClaimedRow key={c.id} claim={c} deal={deal} now={now} onTap={id => go('claim-detail', id)}/>;
-              })}
-            </>
+            ) : (
+              <>
+                {active.length > 0 && (
+                  <>
+                    <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 600, marginBottom: 10 }}>Active · {active.length}</div>
+                    {active.map(c => {
+                      const deal = findDeal(deals, c.dealId);
+                      if (!deal) return null;
+                      return <ClaimedRow key={c.id} claim={c} deal={deal} now={now} onTap={id => go('claim-detail', id)}/>;
+                    })}
+                  </>
+                )}
+                {past.length > 0 && (
+                  <>
+                    <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 600, margin: '20px 0 10px' }}>Past</div>
+                    {past.map(c => {
+                      const deal = findDeal(deals, c.dealId);
+                      if (!deal) return null;
+                      return <ClaimedRow key={c.id} claim={c} deal={deal} now={now} onTap={id => go('claim-detail', id)}/>;
+                    })}
+                  </>
+                )}
+              </>
+            )
           )}
         </div>
       )}
