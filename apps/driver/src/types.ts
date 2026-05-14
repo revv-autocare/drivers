@@ -109,7 +109,8 @@ export type ScreenName =
   | 'shop-detail'
   | 'book'
   | 'booking-confirm'
-  | 'vehicle-detail';
+  | 'vehicle-detail'
+  | 'edit-vehicle';
 
 export type GoFn = (screen: ScreenName | -1, ctx?: string) => void;
 

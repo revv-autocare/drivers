@@ -9,7 +9,7 @@ import { client, daysUntil } from './api';
 // amplify_outputs.json ships with placeholder values during local dev.
 // We fall back to seed data so the app runs without a deployed backend.
 import outputs from '../amplify_outputs.json';
-const BACKEND_LIVE = !outputs.data.url.includes('PLACEHOLDER');
+export const BACKEND_LIVE = !outputs.data.url.includes('PLACEHOLDER');
 
 // ─── Seed data (fallback / demo mode) ───────────────────────────────────────
 export const SEED_VEHICLE: Vehicle = {
@@ -190,6 +190,7 @@ interface StoreValue {
   vehicles: Vehicle[];
   setVehicle: (v: Vehicle) => void;
   addVehicle: (v: Omit<Vehicle, 'id'>) => Promise<void>;
+  updateVehicle: (vehicleId: string, changes: Partial<Vehicle>) => Promise<void>;
   setPrimaryVehicle: (vehicleId: string) => void;
   unlockedHistoryIds: string[];
   unlockHistory: (vehicleId: string) => void;
@@ -323,12 +324,24 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addVehicle = useCallback(async (v: Omit<Vehicle, 'id'>) => {
-    if (!BACKEND_LIVE) { setVehicle(v); return; }
+    if (!BACKEND_LIVE) {
+      const newV: Vehicle = { ...v, id: 'v-' + Date.now(), primary: vehicles.length === 0 };
+      setVehicles(prev => [...prev, newV]);
+      setVehicle(newV);
+      return;
+    }
     const { data: created } = await client.models.Vehicle.create({
       vin: v.vin, year: v.year, make: v.make, model: v.model,
       engine: v.engine, plate: v.plate, mileage: v.mileage,
     });
     if (created) { setVehicleId(created.id); setVehicle(mapVehicle(created)); }
+  }, [vehicles.length]);
+
+  const updateVehicle = useCallback(async (vehicleId: string, changes: Partial<Vehicle>) => {
+    setVehicles(prev => prev.map(v => v.id === vehicleId ? { ...v, ...changes } : v));
+    setVehicle(prev => prev?.id === vehicleId ? { ...prev, ...changes } : prev);
+    if (!BACKEND_LIVE) return;
+    await client.models.Vehicle.update({ id: vehicleId, ...changes } as any);
   }, []);
 
   const claimDeal = useCallback(async (dealId: string): Promise<string> => {
@@ -424,7 +437,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const value: StoreValue = {
     loaded, error,
-    vehicle, vehicles, setVehicle, addVehicle,
+    vehicle, vehicles, setVehicle, addVehicle, updateVehicle,
     setPrimaryVehicle, unlockedHistoryIds, unlockHistory,
     deals, shops, linkedShops, serviceLog,
     claims, claimDeal, advanceClaim, cancelClaim,

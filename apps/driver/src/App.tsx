@@ -3,37 +3,37 @@ import { Authenticator } from '@aws-amplify/ui-react';
 import './driver.css';
 
 import type { ScreenName, GoFn } from './types';
-import { StoreProvider, useStore } from './store';
+import { StoreProvider, useStore, BACKEND_LIVE } from './store';
 
-import { VinOnboardingScreen }  from './screens/VinOnboardingScreen';
-import { HomeScreen }           from './screens/HomeScreen';
-import { DealsScreen }          from './screens/DealsScreen';
-import { DealDetailScreen }     from './screens/DealDetailScreen';
+import { WelcomeScreen }         from './screens/WelcomeScreen';
+import { VinOnboardingScreen }   from './screens/VinOnboardingScreen';
+import { HomeScreen }            from './screens/HomeScreen';
+import { DealsScreen }           from './screens/DealsScreen';
+import { DealDetailScreen }      from './screens/DealDetailScreen';
 import {
   ClaimConfirmScreen,
   ClaimsScreen,
   ClaimDetailScreen,
 } from './screens/ClaimScreens';
-import { ProfileScreen }        from './screens/ProfileScreen';
-import { ServiceLogScreen }     from './screens/ServiceLogScreen';
-import { ServiceDetailScreen }  from './screens/ServiceDetailScreen';
-import { MyShopsScreen }        from './screens/MyShopsScreen';
+import { ProfileScreen }         from './screens/ProfileScreen';
+import { ServiceLogScreen }      from './screens/ServiceLogScreen';
+import { ServiceDetailScreen }   from './screens/ServiceDetailScreen';
+import { MyShopsScreen }         from './screens/MyShopsScreen';
 import {
   FindShopScreen,
   ShopDetailScreen,
   BookAppointmentScreen,
   BookingConfirmScreen,
 } from './screens/ShopScreens';
-import { VehicleDetailScreen }  from './screens/VehicleDetailScreen';
+import { VehicleDetailScreen }   from './screens/VehicleDetailScreen';
 
 // ─── Stack-based router ───────────────────────────────────────────
 const TABS = new Set<ScreenName>(['home', 'deals', 'my-shops', 'claims', 'profile']);
 
-function Router() {
+function Router({ onSignOut }: { onSignOut: () => void }) {
   const { loaded, vehicle } = useStore();
   const [stack, setStack] = useState<Array<{ screen: ScreenName; ctx?: string }>>([]);
 
-  // Set the initial screen once the store has loaded
   useEffect(() => {
     if (!loaded) return;
     if (stack.length === 0) {
@@ -77,7 +77,7 @@ function Router() {
     case 'claim-confirm':   return <ClaimConfirmScreen {...base} {...(ctx ? { claimId: ctx } : {})}/>;
     case 'claims':          return <ClaimsScreen {...base}/>;
     case 'claim-detail':    return <ClaimDetailScreen {...base} {...(ctx ? { claimId: ctx } : {})}/>;
-    case 'profile':         return <ProfileScreen {...base}/>;
+    case 'profile':         return <ProfileScreen {...base} onSignOut={onSignOut}/>;
     case 'service-log':     return <ServiceLogScreen {...base}/>;
     case 'service-detail':  return <ServiceDetailScreen {...base} {...(ctx ? { entryId: ctx } : {})}/>;
     case 'my-shops':        return <MyShopsScreen {...base}/>;
@@ -91,22 +91,41 @@ function Router() {
 }
 
 // ─── App shell ────────────────────────────────────────────────────
+const appWrap: React.CSSProperties = {
+  minHeight: '100dvh',
+  display: 'flex',
+  flexDirection: 'column',
+  background: 'var(--bg-canvas)',
+  fontFamily: 'var(--font-sans)',
+};
+
+// Demo mode: no Cognito pool configured — custom WelcomeScreen gates the app
+function DemoApp() {
+  const [signedIn, setSignedIn] = useState(false);
+  return (
+    <StoreProvider>
+      <div style={appWrap}>
+        {!signedIn
+          ? <WelcomeScreen onSignIn={() => setSignedIn(true)}/>
+          : <Router onSignOut={() => setSignedIn(false)}/>
+        }
+      </div>
+    </StoreProvider>
+  );
+}
+
 export function App() {
+  if (!BACKEND_LIVE) return <DemoApp/>;
+
   return (
     <Authenticator
       signUpAttributes={['email', 'name', 'phone_number']}
       loginMechanisms={['email']}
     >
-      {() => (
+      {({ signOut }) => (
         <StoreProvider>
-          <div style={{
-            minHeight: '100dvh',
-            display: 'flex',
-            flexDirection: 'column',
-            background: 'var(--bg-canvas)',
-            fontFamily: 'var(--font-sans)',
-          }}>
-            <Router/>
+          <div style={appWrap}>
+            <Router onSignOut={signOut ?? (() => {})}/>
           </div>
         </StoreProvider>
       )}
