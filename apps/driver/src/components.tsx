@@ -30,17 +30,21 @@ export function BackArrow() {
 
 // ─── Bottom nav ──────────────────────────────────────
 export function BottomNav({ active, go }: { active: string; go: GoFn }) {
+  const shopRoutes = ['my-shops', 'find-shop', 'shop-detail', 'book', 'booking-confirm'];
+  const visualActive = shopRoutes.includes(active) ? 'my-shops' : active;
+
   const tabs = [
-    { id: 'home',    label: 'Home',    icon: '/assets/icons/revv/home-line.svg' },
-    { id: 'deals',   label: 'Deals',   icon: '/assets/icons/revv/BriefcaseCheck.svg' },
-    { id: 'claims',  label: 'Claims',  icon: '/assets/icons/revv/check-done-01.svg' },
-    { id: 'profile', label: 'Profile', icon: '/assets/icons/extra/user-circle.svg' },
+    { id: 'home',     label: 'Home',     icon: '/assets/icons/revv/home-line.svg' },
+    { id: 'deals',    label: 'Deals',    icon: '/assets/icons/revv/BriefcaseCheck.svg' },
+    { id: 'my-shops', label: 'Shops',    icon: '/assets/icons/revv/building-08.svg' },
+    { id: 'claims',   label: 'Bookings', icon: '/assets/icons/revv/check-done-01.svg' },
+    { id: 'profile',  label: 'Profile',  icon: '/assets/icons/extra/user-circle.svg' },
   ] as const;
 
   return (
     <div className="dv-bnav">
       {tabs.map(t => (
-        <button key={t.id} className={'nav ' + (active === t.id ? 'on' : '')} onClick={() => go(t.id)}>
+        <button key={t.id} className={'nav ' + (visualActive === t.id ? 'on' : '')} onClick={() => go(t.id)}>
           <img src={t.icon} alt={t.label}/>
           <span className="lb">{t.label}</span>
         </button>
@@ -50,7 +54,9 @@ export function BottomNav({ active, go }: { active: string; go: GoFn }) {
 }
 
 // ─── Top bar ─────────────────────────────────────────
-export function TopBar({ greet, name, onBell }: { greet: string; name: string; onBell?: () => void }) {
+export function TopBar({ greet, name, onBell, unreadCount = 0 }: {
+  greet: string; name: string; onBell?: () => void; unreadCount?: number;
+}) {
   return (
     <div className="dv-tbar">
       <Avatar initials={name.slice(0, 1).toUpperCase()}/>
@@ -63,7 +69,7 @@ export function TopBar({ greet, name, onBell }: { greet: string; name: string; o
           <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
           <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
         </svg>
-        <span className="dot"/>
+        {unreadCount > 0 && <span className="dot"/>}
       </button>
     </div>
   );

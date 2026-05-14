@@ -16,6 +16,7 @@ import {
 } from './screens/ClaimScreens';
 import { ProfileScreen }        from './screens/ProfileScreen';
 import { ServiceLogScreen }     from './screens/ServiceLogScreen';
+import { ServiceDetailScreen }  from './screens/ServiceDetailScreen';
 import { MyShopsScreen }        from './screens/MyShopsScreen';
 import {
   FindShopScreen,
@@ -23,9 +24,10 @@ import {
   BookAppointmentScreen,
   BookingConfirmScreen,
 } from './screens/ShopScreens';
+import { VehicleDetailScreen }  from './screens/VehicleDetailScreen';
 
 // ─── Stack-based router ───────────────────────────────────────────
-const TABS = new Set<ScreenName>(['home', 'deals', 'claims', 'profile']);
+const TABS = new Set<ScreenName>(['home', 'deals', 'my-shops', 'claims', 'profile']);
 
 function Router() {
   const { loaded, vehicle } = useStore();
@@ -77,11 +79,13 @@ function Router() {
     case 'claim-detail':    return <ClaimDetailScreen {...base} {...(ctx ? { claimId: ctx } : {})}/>;
     case 'profile':         return <ProfileScreen {...base}/>;
     case 'service-log':     return <ServiceLogScreen {...base}/>;
+    case 'service-detail':  return <ServiceDetailScreen {...base} {...(ctx ? { entryId: ctx } : {})}/>;
     case 'my-shops':        return <MyShopsScreen {...base}/>;
     case 'find-shop':       return <FindShopScreen {...base}/>;
     case 'shop-detail':     return <ShopDetailScreen {...base} {...(ctx ? { shopId: ctx } : {})}/>;
     case 'book':            return <BookAppointmentScreen {...base} {...(ctx ? { shopId: ctx } : {})}/>;
     case 'booking-confirm': return <BookingConfirmScreen {...base} {...(ctx ? { apptId: ctx } : {})}/>;
+    case 'vehicle-detail':  return <VehicleDetailScreen {...base} {...(ctx ? { vehicleId: ctx } : {})}/>;
     default:                return <HomeScreen {...base}/>;
   }
 }

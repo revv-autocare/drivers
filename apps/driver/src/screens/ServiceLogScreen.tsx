@@ -49,7 +49,7 @@ export function ServiceLogScreen({ go }: { go: GoFn }) {
               {year}
             </div>
             {items.map(e => (
-              <div key={e.id} className="dv-item" style={{ alignItems: 'flex-start' }}>
+              <div key={e.id} className="dv-item" style={{ alignItems: 'flex-start', cursor: 'pointer' }} onClick={() => go('service-detail', e.id)}>
                 <div className="badge" style={{ background: e.via === 'auto' ? 'var(--color-success-50)' : 'var(--color-neutral-100)' }}>
                   <img src={categoryIcon(e.category)} style={{ width: 18, opacity: .85 }} alt=""/>
                 </div>
@@ -64,9 +64,13 @@ export function ServiceLogScreen({ go }: { go: GoFn }) {
                   <div style={{ display: 'flex', gap: 6, marginTop: 8, alignItems: 'center' }}>
                     {e.via === 'auto'   && <Pill kind="success">Auto-logged</Pill>}
                     {e.via === 'manual' && <Pill kind="neutral">Manual</Pill>}
+                    <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--color-brand-600)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
+                      View report
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </span>
                   </div>
                 </div>
-                {e.cost && <div className="price">${e.cost}</div>}
+                {e.cost != null && <div className="price">${e.cost}</div>}
               </div>
             ))}
           </div>

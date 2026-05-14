@@ -776,3 +776,410 @@
   animation: spin .8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── Notifications sheet ───────────────────────────── */
+.dv-notif-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,21,48,.45);
+  z-index: 30;
+  animation: fadeIn .15s ease;
+}
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+.dv-notif-sheet {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 31;
+  background: #fff;
+  border-radius: 0 0 20px 20px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(15,21,48,.22);
+  animation: slideDown .22s cubic-bezier(.22,.61,.36,1);
+}
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0 }
+  to   { transform: translateY(0);    opacity: 1 }
+}
+
+.dv-notif-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 18px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+.dv-notif-head h3 { margin: 0; font-size: 16px; font-weight: 600; }
+.dv-notif-head .unread-count {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--color-brand-500);
+  color: #fff;
+}
+.dv-notif-head .close {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-neutral-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  color: var(--fg-secondary);
+}
+
+.dv-notif-list { overflow-y: auto; flex: 1; }
+
+.dv-notif-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: background .1s;
+  position: relative;
+}
+.dv-notif-row:hover { background: var(--color-neutral-50); }
+.dv-notif-row .ic {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.dv-notif-row .body { flex: 1; min-width: 0; }
+.dv-notif-row .ttl  { font-size: 13.5px; font-weight: 600; line-height: 1.3; }
+.dv-notif-row .desc { font-size: 12px; color: var(--fg-secondary); margin-top: 2px; line-height: 1.45; }
+.dv-notif-row .when { font-size: 11px; color: var(--fg-tertiary); margin-top: 4px; font-weight: 500; }
+.dv-notif-row .unread-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-brand-500);
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.dv-notif-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 30px;
+}
+.dv-notif-empty .ic {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--color-neutral-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+.dv-notif-empty h4 { margin: 0 0 6px; font-size: 15px; font-weight: 600; }
+.dv-notif-empty p  { margin: 0; font-size: 13px; color: var(--fg-secondary); line-height: 1.5; }
+
+/* ─── Hero — animated car scene ─────────────────────── */
+.dv-hero-health {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 10px;
+  padding: 3px 9px;
+  border-radius: 5px;
+  background: rgba(255,255,255,.14);
+  font-size: 11.5px;
+  font-weight: 500;
+}
+.dv-hero-health strong { font-weight: 700; }
+
+.dv-hero-scene {
+  position: relative;
+  margin-top: 18px;
+  height: 78px;
+  overflow: hidden;
+}
+.dv-hero-track {
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(255,255,255,.18);
+}
+.dv-hero-car-svg {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.dv-wheel {
+  animation: spin .9s linear infinite;
+  transform-origin: center;
+}
+.dv-car-shadow {
+  animation: shadowPulse 1.8s ease-in-out infinite;
+}
+@keyframes shadowPulse {
+  0%, 100% { opacity: .35 }
+  50%       { opacity: .55 }
+}
+
+.dv-hero-xp {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+.dv-hero-xp .lvl {
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(255,228,138,.22);
+  color: #FFE48A;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.dv-hero-xp .streak {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,.85);
+}
+
+/* ─── Upcoming appointment banner ───────────────────── */
+.dv-upcoming {
+  margin: 0 16px 18px;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: border-color .12s;
+}
+.dv-upcoming:hover { border-color: var(--color-brand-200); }
+.dv-upcoming .date-block {
+  text-align: center;
+  width: 44px;
+  flex-shrink: 0;
+}
+.dv-upcoming .date-block .mo {
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--color-brand-600);
+  letter-spacing: .06em;
+}
+.dv-upcoming .date-block .day {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-top: 1px;
+}
+.dv-upcoming .info { flex: 1; min-width: 0; }
+.dv-upcoming .info .lbl { font-size: 11px; color: var(--fg-tertiary); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+.dv-upcoming .info .svc { font-size: 14px; font-weight: 600; margin-top: 2px; }
+.dv-upcoming .info .where { font-size: 12px; color: var(--fg-secondary); margin-top: 2px; }
+.dv-upcoming .arrow { color: var(--fg-tertiary); flex-shrink: 0; }
+
+/* ─── Bookings segments ─────────────────────────────── */
+.dv-segments {
+  display: flex;
+  gap: 0;
+  margin-bottom: 16px;
+  background: var(--color-neutral-100);
+  border-radius: 10px;
+  padding: 3px;
+}
+.dv-segments .seg {
+  flex: 1;
+  text-align: center;
+  padding: 9px 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background .12s, color .12s;
+}
+.dv-segments .seg.on {
+  background: #fff;
+  color: var(--fg-primary);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(15,21,48,.08);
+}
+.dv-segments .seg .count {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: var(--color-neutral-200);
+  color: var(--fg-secondary);
+}
+.dv-segments .seg.on .count {
+  background: var(--color-brand-50);
+  color: var(--color-brand-700);
+}
+
+/* ─── Garage card ───────────────────────────────────── */
+.dv-garage-card {
+  background: #fff;
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: border-color .12s;
+}
+.dv-garage-card:hover { border-color: var(--color-brand-200); }
+.dv-garage-card__icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: var(--color-brand-50);
+  color: var(--color-brand-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.dv-garage-card__body { flex: 1; min-width: 0; }
+.dv-garage-card__top  { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 3px; }
+.dv-garage-card__top .nm { font-size: 14.5px; font-weight: 600; }
+.dv-garage-card__nick { font-size: 12px; color: var(--fg-secondary); margin-bottom: 4px; }
+.dv-garage-card__meta { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--fg-tertiary); }
+.dv-garage-card__meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--fg-tertiary); }
+
+.dv-garage-add {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1.5px dashed var(--color-brand-200);
+  border-radius: 12px;
+  background: var(--color-brand-50);
+  cursor: pointer;
+  color: var(--color-brand-700);
+  margin-top: 4px;
+}
+
+/* ─── Vehicle unlock card ───────────────────────────── */
+.dv-unlock-card {
+  background: #fff;
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 4px;
+}
+.dv-unlock-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 4px;
+  background: var(--color-brand-50);
+  color: var(--color-brand-700);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 10px;
+}
+.dv-unlock-card__ttl  { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 6px; }
+.dv-unlock-card__desc { font-size: 12.5px; color: var(--fg-secondary); line-height: 1.5; margin-bottom: 14px; }
+.dv-unlock-card__features {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+  margin-bottom: 16px;
+}
+.dv-unlock-card__features .feat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--fg-primary);
+  font-weight: 500;
+}
+.dv-unlock-card__features .feat svg { color: var(--color-success-600); flex-shrink: 0; }
+.dv-unlock-card__cta {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 18px;
+  background: var(--color-brand-500);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+.dv-unlock-card__cta:hover { background: var(--color-brand-600); }
+.dv-unlock-card__cta .price {
+  margin-left: auto;
+  font-size: 15px;
+  font-weight: 700;
+}
+.dv-unlock-card__fine {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--fg-tertiary);
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ─── History row (unlocked vehicle detail) ─────────── */
+.dv-history-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border-subtle);
+}
+.dv-history-row:first-child { border-top: none; }
+.dv-history-row .ic {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.dv-history-row .body { flex: 1; min-width: 0; }
+.dv-history-row .ttl  { font-size: 13px; font-weight: 600; line-height: 1.3; }
+.dv-history-row .meta { font-size: 11.5px; color: var(--fg-secondary); margin-top: 2px; line-height: 1.4; }
+.dv-history-row .date { font-size: 11px; color: var(--fg-tertiary); margin-top: 3px; font-weight: 500; }
