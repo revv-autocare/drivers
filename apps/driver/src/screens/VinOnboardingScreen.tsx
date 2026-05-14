@@ -5,10 +5,15 @@ import { decodeVin } from '../api';
 import { useStore } from '../store';
 import { BackArrow } from '../components';
 
+type Step = 'enter' | 'confirm' | 'manual';
+
+const CURRENT_YEAR = new Date().getFullYear();
+const YEARS = Array.from({ length: CURRENT_YEAR - 1979 }, (_, i) => CURRENT_YEAR - i);
+
 export function VinOnboardingScreen({ go }: { go: GoFn }) {
   const { addVehicle } = useStore();
 
-  const [step,     setStep]     = useState<'enter' | 'confirm'>('enter');
+  const [step,     setStep]     = useState<Step>('enter');
   const [vin,      setVin]      = useState('');
   const [plate,    setPlate]    = useState('');
   const [mileage,  setMileage]  = useState('');
@@ -16,6 +21,16 @@ export function VinOnboardingScreen({ go }: { go: GoFn }) {
   const [loading,  setLoading]  = useState(false);
   const [saving,   setSaving]   = useState(false);
   const [errMsg,   setErrMsg]   = useState('');
+
+  // Manual entry fields
+  const [manYear,  setManYear]  = useState(String(CURRENT_YEAR));
+  const [manMake,  setManMake]  = useState('');
+  const [manModel, setManModel] = useState('');
+  const [manPlate, setManPlate] = useState('');
+  const [manColor, setManColor] = useState('');
+  const [manKm,    setManKm]    = useState('');
+
+  const stepLabel = step === 'enter' ? '1' : step === 'confirm' ? '2' : '1';
 
   const handleDecode = async () => {
     const raw = vin.trim();
@@ -36,7 +51,6 @@ export function VinOnboardingScreen({ go }: { go: GoFn }) {
     }
   };
 
-  // Quick demo shortcut — tap scan to pre-fill a known VIN
   const handleScanDemo = async () => {
     setVin('1HGCM82633A004352');
     setErrMsg('');
@@ -74,15 +88,48 @@ export function VinOnboardingScreen({ go }: { go: GoFn }) {
     }
   };
 
+  const handleManualSave = async () => {
+    if (!manMake.trim() || !manModel.trim()) {
+      setErrMsg('Please enter the make and model.');
+      return;
+    }
+    setSaving(true);
+    setErrMsg('');
+    try {
+      const manVehicle: Parameters<typeof addVehicle>[0] = {
+        vin: '',
+        year: parseInt(manYear, 10),
+        make: manMake.trim(),
+        model: manModel.trim(),
+        engine: '',
+        plate: manPlate.trim().toUpperCase() || 'BC ???-???',
+        mileage: parseInt(manKm.replace(/\D/g, ''), 10) || 0,
+      };
+      if (manColor.trim()) manVehicle.color = manColor.trim();
+      await addVehicle(manVehicle);
+      go('home');
+    } catch (err: any) {
+      setErrMsg(err?.message ?? 'Failed to save vehicle. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="dv-screen">
       <div className="dv-dethead">
-        <button className="back" onClick={() => step === 'confirm' ? setStep('enter') : undefined}>
+        <button
+          className="back"
+          onClick={() => {
+            if (step === 'confirm') { setStep('enter'); return; }
+            if (step === 'manual')  { setStep('enter'); return; }
+          }}
+        >
           <BackArrow/>
         </button>
         <h3>Add your car</h3>
         <span style={{ marginLeft: 'auto', fontSize: 12, color: 'var(--fg-tertiary)' }}>
-          Step {step === 'enter' ? '1' : '2'} of 2
+          Step {stepLabel} of 2
         </span>
       </div>
 
@@ -135,6 +182,15 @@ export function VinOnboardingScreen({ go }: { go: GoFn }) {
             >
               {loading ? <><div className="dv-spinner"/>Decoding…</> : 'Continue'}
             </button>
+
+            <div style={{ marginTop: 18, textAlign: 'center' }}>
+              <span
+                onClick={() => { setErrMsg(''); setStep('manual'); }}
+                style={{ fontSize: 13, color: 'var(--color-brand-600)', cursor: 'pointer', fontWeight: 500 }}
+              >
+                Don't have your VIN? Enter details instead →
+              </span>
+            </div>
           </div>
         )}
 
@@ -194,6 +250,89 @@ export function VinOnboardingScreen({ go }: { go: GoFn }) {
                 {saving ? <><div className="dv-spinner"/>Saving…</> : 'Yes, add to garage'}
               </button>
             </div>
+          </div>
+        )}
+
+        {/* ── Manual entry: no VIN required ────────────────── */}
+        {step === 'manual' && (
+          <div>
+            <h2 style={{ fontSize: 22, margin: '0 0 6px', letterSpacing: '-0.01em' }}>Enter car details</h2>
+            <p style={{ fontSize: 14, color: 'var(--fg-secondary)', margin: '0 0 22px', lineHeight: 1.5 }}>
+              Fill in what you know — you can always edit these later from your garage.
+            </p>
+
+            <div className="dv-field">
+              <label>Year</label>
+              <select
+                value={manYear}
+                onChange={e => setManYear(e.target.value)}
+                style={{ width: '100%', padding: '12px 14px', border: '1.5px solid var(--border-field)', borderRadius: 10, fontSize: 15, background: '#fff', appearance: 'none', cursor: 'pointer' }}
+              >
+                {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+              </select>
+            </div>
+
+            <div className="dv-field">
+              <label>Make</label>
+              <input
+                value={manMake}
+                onChange={e => setManMake(e.target.value)}
+                placeholder="e.g. Toyota"
+                autoCapitalize="words"
+              />
+            </div>
+
+            <div className="dv-field">
+              <label>Model</label>
+              <input
+                value={manModel}
+                onChange={e => setManModel(e.target.value)}
+                placeholder="e.g. Corolla"
+                autoCapitalize="words"
+              />
+            </div>
+
+            <div className="dv-field">
+              <label>Colour <span style={{ fontWeight: 400, color: 'var(--fg-tertiary)' }}>(optional)</span></label>
+              <input
+                value={manColor}
+                onChange={e => setManColor(e.target.value)}
+                placeholder="e.g. Silver"
+                autoCapitalize="words"
+              />
+            </div>
+
+            <div className="dv-field">
+              <label>Licence plate <span style={{ fontWeight: 400, color: 'var(--fg-tertiary)' }}>(optional)</span></label>
+              <input
+                value={manPlate}
+                onChange={e => setManPlate(e.target.value.toUpperCase().slice(0, 10))}
+                placeholder="e.g. BC RVV-204"
+              />
+            </div>
+
+            <div className="dv-field">
+              <label>Current mileage (km) <span style={{ fontWeight: 400, color: 'var(--fg-tertiary)' }}>(optional)</span></label>
+              <input
+                value={manKm}
+                onChange={e => { setManKm(e.target.value.replace(/\D/g, '').slice(0, 7)); setErrMsg(''); }}
+                placeholder="e.g. 84120"
+                inputMode="numeric"
+              />
+            </div>
+
+            {errMsg && (
+              <div style={{ fontSize: 13, color: 'var(--color-error-600)', marginBottom: 12 }}>{errMsg}</div>
+            )}
+
+            <button
+              className="dv-btn dv-btn--primary"
+              style={{ width: '100%', marginTop: 8 }}
+              onClick={handleManualSave}
+              disabled={saving}
+            >
+              {saving ? <><div className="dv-spinner"/>Saving…</> : 'Add to garage'}
+            </button>
           </div>
         )}
       </div>

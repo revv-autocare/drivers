@@ -3,6 +3,14 @@ import type { GoFn } from '../types';
 import { useStore, categoryIcon } from '../store';
 import { DetailHead } from '../components';
 
+interface EditState {
+  nickname: string;
+  plate: string;
+  color: string;
+  mileage: string;
+  trim: string;
+}
+
 interface HistoryItem {
   kind: 'accident' | 'owners' | 'mileage' | 'title' | 'recalls' | 'lien';
   date: string;
@@ -45,12 +53,44 @@ function HistoryIcon({ kind }: { kind: HistoryItem['kind'] }) {
 const sH: React.CSSProperties = { margin: '18px 0 10px', fontSize: 12, fontWeight: 600, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '.06em', display: 'flex', alignItems: 'center' };
 
 export function VehicleDetailScreen({ go, vehicleId }: { go: GoFn; vehicleId?: string }) {
-  const { vehicles, vehicle, serviceLog, setPrimaryVehicle, unlockedHistoryIds, unlockHistory } = useStore();
+  const { vehicles, vehicle, serviceLog, setPrimaryVehicle, unlockedHistoryIds, unlockHistory, updateVehicle } = useStore();
   const displayVehicles = vehicles.length > 0 ? vehicles : (vehicle ? [vehicle] : []);
   const v = displayVehicles.find(x => x.id === vehicleId) ?? displayVehicles[0];
 
-  const [unlocking, setUnlocking] = useState(false);
+  const [unlocking,  setUnlocking]  = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
+  const [editing,    setEditing]    = useState(false);
+  const [saving,     setSaving]     = useState(false);
+  const [editState,  setEditState]  = useState<EditState | null>(null);
+
+  const openEdit = () => {
+    if (!v) return;
+    setEditState({
+      nickname: v.nickname ?? '',
+      plate:    v.plate ?? '',
+      color:    v.color ?? '',
+      mileage:  String(v.mileage ?? ''),
+      trim:     v.trim ?? '',
+    });
+    setEditing(true);
+  };
+
+  const saveEdit = async () => {
+    if (!v || !editState) return;
+    setSaving(true);
+    const changes: Partial<{
+      nickname: string; plate: string; color: string; mileage: number; trim: string;
+    }> = { plate: editState.plate.trim().toUpperCase() || v.plate, mileage: parseInt(editState.mileage.replace(/\D/g, ''), 10) || v.mileage };
+    if (editState.nickname.trim()) changes.nickname = editState.nickname.trim();
+    if (editState.color.trim())    changes.color    = editState.color.trim();
+    if (editState.trim.trim())     changes.trim     = editState.trim.trim();
+    await updateVehicle(v.id ?? v.vin, changes);
+    setSaving(false);
+    setEditing(false);
+  };
+
+  const setField = (k: keyof EditState, val: string) =>
+    setEditState(prev => prev ? { ...prev, [k]: val } : prev);
 
   if (!v) return <div className="dv-screen"><div className="dv-empty"><h3>Vehicle not found</h3></div></div>;
 
@@ -68,7 +108,22 @@ export function VehicleDetailScreen({ go, vehicleId }: { go: GoFn; vehicleId?: s
 
   return (
     <div className="dv-screen" style={{ background: 'var(--color-neutral-50)', position: 'relative' }}>
-      <DetailHead title={v.nickname ?? 'Vehicle'} onBack={() => go('profile')}/>
+      <DetailHead
+        title={v.nickname ?? 'Vehicle'}
+        onBack={() => go('profile')}
+        action={
+          <button
+            onClick={openEdit}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', color: 'var(--color-brand-600)', display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 600 }}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Edit
+          </button>
+        }
+      />
 
       {/* Hero */}
       <div style={{ background: 'linear-gradient(135deg, #1B2649 0%, #2B3F86 60%, var(--color-brand-500) 130%)', color: '#fff', padding: '18px 18px 22px', position: 'relative', overflow: 'hidden' }}>
@@ -189,6 +244,48 @@ export function VehicleDetailScreen({ go, vehicleId }: { go: GoFn; vehicleId?: s
           </button>
         )}
       </div>
+
+      {/* Edit sheet */}
+      {editing && editState && (
+        <>
+          <div onClick={() => !saving && setEditing(false)} style={{ position: 'absolute', inset: 0, background: 'rgba(15,21,48,.55)', zIndex: 20 }}/>
+          <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 21, background: '#fff', borderRadius: '18px 18px 0 0', padding: '22px 18px 32px', boxShadow: '0 -8px 32px rgba(15,21,48,.18)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+              <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>Edit vehicle details</h3>
+              <button onClick={() => setEditing(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--fg-secondary)', padding: 4 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+
+            {[
+              { label: 'Nickname',       key: 'nickname' as const, placeholder: 'e.g. My Corolla' },
+              { label: 'Licence plate',  key: 'plate'    as const, placeholder: 'e.g. BC RVV-204', upper: true },
+              { label: 'Colour',         key: 'color'    as const, placeholder: 'e.g. Silver' },
+              { label: 'Trim',           key: 'trim'     as const, placeholder: 'e.g. LE, XSE' },
+              { label: 'Mileage (km)',   key: 'mileage'  as const, placeholder: 'e.g. 84120', numeric: true },
+            ].map(f => (
+              <div className="dv-field" key={f.key}>
+                <label>{f.label}</label>
+                <input
+                  value={editState[f.key]}
+                  onChange={e => setField(f.key, f.upper ? e.target.value.toUpperCase() : f.numeric ? e.target.value.replace(/\D/g, '') : e.target.value)}
+                  placeholder={f.placeholder}
+                  inputMode={f.numeric ? 'numeric' : undefined}
+                />
+              </div>
+            ))}
+
+            <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+              <button className="dv-btn dv-btn--secondary" style={{ flex: 1 }} disabled={saving} onClick={() => setEditing(false)}>
+                Cancel
+              </button>
+              <button className="dv-btn dv-btn--primary" style={{ flex: 1.4 }} disabled={saving} onClick={saveEdit}>
+                {saving ? <><div className="dv-spinner"/>Saving…</> : 'Save changes'}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Paywall sheet */}
       {showPaywall && (

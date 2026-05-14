@@ -608,7 +608,7 @@
 }
 
 .dv-foot { text-align: center; margin-top: auto; padding-top: 20px; font-size: 13px; color: var(--fg-secondary); }
-.dv-foot a { color: var(--color-brand-600); font-weight: 600; cursor: pointer; }
+.dv-foot a, .dv-foot span { color: var(--color-brand-600); font-weight: 600; cursor: pointer; }
 
 /* ─── VIN onboarding ────────────────────────────────── */
 .dv-vincard {

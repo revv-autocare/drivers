@@ -2,7 +2,7 @@ import type { GoFn } from '../types';
 import { useStore } from '../store';
 import { Avatar, BackArrow, Pill, BottomNav } from '../components';
 
-export function ProfileScreen({ go }: { go: GoFn }) {
+export function ProfileScreen({ go, onSignOut }: { go: GoFn; onSignOut?: () => void }) {
   const { vehicles, vehicle, linkedShops, serviceLog, unlockedHistoryIds } = useStore();
   if (!vehicle) return null;
   const displayVehicles = vehicles.length > 0 ? vehicles : [vehicle];
@@ -112,6 +112,26 @@ export function ProfileScreen({ go }: { go: GoFn }) {
             {e.cost != null && <div className="price">${e.cost}</div>}
           </div>
         ))}
+      </div>
+
+      <div className="dv-section">
+        <h4>Account</h4>
+        <button
+          onClick={() => onSignOut?.()}
+          style={{
+            width: '100%', padding: '13px 16px', border: '1px solid var(--border-subtle)',
+            borderRadius: 12, background: '#fff', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 10,
+            fontSize: 14, fontWeight: 500, color: 'var(--color-error-600)',
+          }}
+        >
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          Sign out
+        </button>
       </div>
 
       <BottomNav active="profile" go={go}/>

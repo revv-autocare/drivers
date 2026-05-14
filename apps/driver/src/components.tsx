@@ -1,3 +1,4 @@
+import type React from 'react';
 import type { PillKind, GoFn, Deal, Claim } from './types';
 import { useStore, findDeal, getClaimForDeal, formatTimeLeft, categoryIcon } from './store';
 
@@ -76,14 +77,15 @@ export function TopBar({ greet, name, onBell, unreadCount = 0 }: {
 }
 
 // ─── Detail head ─────────────────────────────────────
-export function DetailHead({ title, onBack, pill, pillKind }: {
-  title: string; onBack: () => void; pill?: string; pillKind?: PillKind;
+export function DetailHead({ title, onBack, pill, pillKind, action }: {
+  title: string; onBack: () => void; pill?: string; pillKind?: PillKind; action?: React.ReactNode;
 }) {
   return (
     <div className="dv-dethead">
       <button className="back" onClick={onBack}><BackArrow/></button>
       <h3>{title}</h3>
       {pill && <Pill kind={pillKind ?? 'neutral'}>{pill}</Pill>}
+      {action && <div style={{ marginLeft: 'auto' }}>{action}</div>}
     </div>
   );
 }
