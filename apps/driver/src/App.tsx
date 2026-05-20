@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, type CSSProperties } from 'react';
 import { Authenticator } from '@aws-amplify/ui-react';
 import './driver.css';
 
@@ -26,6 +26,22 @@ import {
   BookingConfirmScreen,
 } from './screens/ShopScreens';
 import { VehicleDetailScreen }   from './screens/VehicleDetailScreen';
+import {
+  AddServiceInputScreen,
+  AddServiceProcessingScreen,
+  AddServiceConfirmScreen,
+  AddServiceManualScreen,
+  AddServiceSavedScreen,
+} from './screens/AddServiceScreens';
+import {
+  RoadsideTriggerScreen,
+  RoadsideLocationScreen,
+  RoadsideMatchingScreen,
+  RoadsideActiveScreen,
+  RoadsideDestinationScreen,
+  RoadsideCompletionScreen,
+} from './screens/RoadsideScreens';
+import { RoadsideFollowupScreen, PushNotificationMockup } from './screens/RoadsideComponents';
 
 // ─── Stack-based router ───────────────────────────────────────────
 const TABS = new Set<ScreenName>(['home', 'deals', 'my-shops', 'claims', 'profile']);
@@ -85,13 +101,26 @@ function Router({ onSignOut }: { onSignOut: () => void }) {
     case 'shop-detail':     return <ShopDetailScreen {...base} {...(ctx ? { shopId: ctx } : {})}/>;
     case 'book':            return <BookAppointmentScreen {...base} {...(ctx ? { shopId: ctx } : {})}/>;
     case 'booking-confirm': return <BookingConfirmScreen {...base} {...(ctx ? { apptId: ctx } : {})}/>;
-    case 'vehicle-detail':  return <VehicleDetailScreen {...base} {...(ctx ? { vehicleId: ctx } : {})}/>;
-    default:                return <HomeScreen {...base}/>;
+    case 'vehicle-detail':       return <VehicleDetailScreen {...base} {...(ctx ? { vehicleId: ctx } : {})}/>;
+    case 'add-service':          return <AddServiceInputScreen {...base}/>;
+    case 'add-service-processing': return <AddServiceProcessingScreen {...base}/>;
+    case 'add-service-confirm':  return <AddServiceConfirmScreen {...base}/>;
+    case 'add-service-manual':   return <AddServiceManualScreen {...base}/>;
+    case 'add-service-saved':    return <AddServiceSavedScreen {...base} {...(ctx ? { entryId: ctx } : {})}/>;
+    case 'roadside':             return <RoadsideTriggerScreen {...base}/>;
+    case 'roadside-location':    return <RoadsideLocationScreen {...base} {...(ctx ? { ctx } : {})}/>;
+    case 'roadside-matching':    return <RoadsideMatchingScreen {...base} {...(ctx ? { ctx } : {})}/>;
+    case 'roadside-active':      return <RoadsideActiveScreen {...base}/>;
+    case 'roadside-destination': return <RoadsideDestinationScreen {...base}/>;
+    case 'roadside-completion':  return <RoadsideCompletionScreen {...base}/>;
+    case 'roadside-followup':    return <RoadsideFollowupScreen {...base}/>;
+    default:                     return <HomeScreen {...base}/>;
   }
 }
 
+
 // ─── App shell ────────────────────────────────────────────────────
-const appWrap: React.CSSProperties = {
+const appWrap: CSSProperties = {
   minHeight: '100dvh',
   display: 'flex',
   flexDirection: 'column',
@@ -100,6 +129,15 @@ const appWrap: React.CSSProperties = {
 };
 
 // Demo mode: no Cognito pool configured — custom WelcomeScreen gates the app
+function AppShell({ onSignOut }: { onSignOut: () => void }) {
+  return (
+    <div style={{ position: 'relative' }}>
+      <Router onSignOut={onSignOut}/>
+      <PushNotificationMockup/>
+    </div>
+  );
+}
+
 function DemoApp() {
   const [signedIn, setSignedIn] = useState(false);
   return (
@@ -107,7 +145,7 @@ function DemoApp() {
       <div style={appWrap}>
         {!signedIn
           ? <WelcomeScreen onSignIn={() => setSignedIn(true)}/>
-          : <Router onSignOut={() => setSignedIn(false)}/>
+          : <AppShell onSignOut={() => setSignedIn(false)}/>
         }
       </div>
     </StoreProvider>
@@ -125,7 +163,7 @@ export function App() {
       {({ signOut }) => (
         <StoreProvider>
           <div style={appWrap}>
-            <Router onSignOut={signOut ?? (() => {})}/>
+            <AppShell onSignOut={signOut ?? (() => {})}/>
           </div>
         </StoreProvider>
       )}

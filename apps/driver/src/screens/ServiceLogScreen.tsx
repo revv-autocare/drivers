@@ -43,6 +43,19 @@ export function ServiceLogScreen({ go }: { go: GoFn }) {
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+        <div className="dv-add-cta" onClick={() => go('add-service')}>
+          <div className="dv-add-cta__ic">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+          <div className="dv-add-cta__body">
+            <div className="dv-add-cta__ttl">Log a service</div>
+            <div className="dv-add-cta__sub">Photo, paste receipt, or voice — AI fills the form</div>
+          </div>
+          <div className="dv-add-cta__arrow">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+        </div>
+
         {grouped.map(([year, items]) => (
           <div key={year} style={{ marginBottom: 22 }}>
             <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 600, marginBottom: 10 }}>
@@ -76,8 +89,8 @@ export function ServiceLogScreen({ go }: { go: GoFn }) {
           </div>
         ))}
 
-        <button className="dv-btn dv-btn--secondary" style={{ width: '100%', marginTop: 8 }}>
-          + Add service manually
+        <button className="dv-btn dv-btn--secondary" style={{ width: '100%', marginTop: 8, background: 'transparent', border: 'none', color: 'var(--fg-tertiary)', fontSize: 13 }} onClick={() => go('add-service-manual')}>
+          Enter manually instead
         </button>
       </div>
     </div>
