@@ -1,8 +1,12 @@
 import {
-  useState, useEffect, useCallback,
+  useState, useEffect, useCallback, useMemo,
   createContext, useContext, ReactNode,
 } from 'react';
-import type { Vehicle, Shop, ServiceEntry, Deal, Claim, Appointment } from './types';
+import type {
+  Vehicle, Shop, ServiceEntry, Deal, Claim, Appointment,
+  ServiceDraft, RoadsideEvent, RoadsideScenario, Tweaks,
+  ExtractionConfidence,
+} from './types';
 import { client, daysUntil } from './api';
 
 // ─── Detect unconfigured backend ────────────────────────────────────────────
@@ -56,6 +60,155 @@ export const SEED_DEALS: Deal[] = [
   { id: 'd5', shopId: 'mainst',   shop: 'Main St Garage',          neighborhood: 'Mount Pleasant',  category: 'insp',   categoryLabel: 'Full inspection', offer: 'Pre-purchase inspection — $149',                         priceNow: 149, priceWas: 199, distanceKm: 1.9, expiresInDays: 35, hours: 'Mon–Fri · 8am–6pm',  address: '3010 Main St, Vancouver' },
   { id: 'd6', shopId: 'fraser',   shop: 'Fraser St Auto',          neighborhood: 'Mount Pleasant',  category: 'detail', categoryLabel: 'Detailing',       offer: 'Interior + exterior detail — $99 (was $160)',            priceNow: 99,  priceWas: 160, distanceKm: 2.1, expiresInDays: 18, hours: 'Wed–Sun · 10am–6pm', address: '4280 Fraser St, Vancouver' },
 ];
+
+// ─── Roadside event scenario builder ───────────────────────────────────────
+const SCENARIO_PROVIDER = {
+  name: 'Marcus T.',
+  company: 'BC Roadside Pros',
+  powered: 'Nation Safe Drivers',
+  vehicle: 'White Ford F-150 service truck',
+  plate: 'BC NSD-4421',
+  rating: 4.9,
+  completedJobs: 1840,
+};
+
+export function buildRoadsideEvent(scenario: RoadsideScenario): RoadsideEvent | null {
+  if (scenario === 'idle') return null;
+
+  const base: RoadsideEvent = {
+    id: 'rs-demo',
+    service: 'flat-tire',
+    serviceLabel: 'Flat tire',
+    status: 'idle',
+    requestedAt: Date.now() - 18 * 60_000,
+    dispatchedAt: Date.now() - 12 * 60_000,
+    arrivedAt: null,
+    completedAt: null,
+    location: {
+      address: '847 W 10th Ave',
+      city: 'Vancouver, BC',
+      note: 'Parked in front of the dental clinic, hazards on.',
+    },
+    provider: { ...SCENARIO_PROVIDER, eta: 12 },
+    destinationShopId: null,
+    destinationDecision: null,
+    cost: 0,
+    followUp: null,
+  };
+
+  switch (scenario) {
+    case 'matching':
+      return { ...base, service: 'jump-start', serviceLabel: 'Jump start', status: 'matching', provider: null };
+    case 'dispatched-tow-nodest':
+      return { ...base, service: 'tow', serviceLabel: 'Tow', status: 'dispatched', provider: { ...SCENARIO_PROVIDER, eta: 14 } };
+    case 'dispatched-tow-revv':
+      return { ...base, service: 'tow', serviceLabel: 'Tow', status: 'dispatched',
+        provider: { ...SCENARIO_PROVIDER, eta: 9 },
+        destinationShopId: 'egban', destinationDecision: 'selected' };
+    case 'dispatched-tow-defer':
+      return { ...base, service: 'tow', serviceLabel: 'Tow', status: 'dispatched',
+        provider: { ...SCENARIO_PROVIDER, eta: 14 },
+        destinationDecision: 'deferred' };
+    case 'dispatched-self':
+      return { ...base, service: 'flat-tire', serviceLabel: 'Flat tire', status: 'dispatched',
+        provider: { ...SCENARIO_PROVIDER, eta: 7 } };
+    case 'completion-self':
+      return { ...base, service: 'jump-start', serviceLabel: 'Jump start',
+        status: 'completed',
+        arrivedAt:  Date.now() - 25 * 60_000,
+        completedAt: Date.now() - 5  * 60_000,
+        cost: 95,
+      };
+    case 'completion-tow-revv':
+      return { ...base, service: 'tow', serviceLabel: 'Tow', status: 'completed',
+        arrivedAt:  Date.now() - 45 * 60_000,
+        completedAt: Date.now() - 4  * 60_000,
+        destinationShopId: 'egban', destinationDecision: 'selected', cost: 180 };
+    case 'completion-tow-other':
+      return { ...base, service: 'tow', serviceLabel: 'Tow', status: 'completed',
+        arrivedAt:  Date.now() - 50 * 60_000,
+        completedAt: Date.now() - 4  * 60_000,
+        destinationShopId: null, destinationDecision: 'manual',
+        destinationManual: 'OK Tire Burrard', cost: 220 };
+    case 'followup-initial':
+      return { ...base, service: 'flat-tire', serviceLabel: 'Flat tire', status: 'completed',
+        completedAt: Date.now() - 2 * 24 * 60 * 60_000,
+        destinationDecision: 'manual', destinationManual: 'OK Tire Burrard',
+        followUp: { state: 'initial', triggerAt: Date.now() - 24 * 60 * 60_000 } };
+    case 'followup-viewed':
+      return { ...base, service: 'flat-tire', serviceLabel: 'Flat tire', status: 'completed',
+        completedAt: Date.now() - 5 * 24 * 60 * 60_000,
+        destinationDecision: 'manual', destinationManual: 'OK Tire Burrard',
+        followUp: { state: 'viewed', triggerAt: Date.now() - 4 * 24 * 60 * 60_000, viewedAt: Date.now() - 3 * 24 * 60 * 60_000 } };
+    case 'followup-booked':
+      return { ...base, service: 'flat-tire', serviceLabel: 'Flat tire', status: 'completed',
+        completedAt: Date.now() - 6 * 24 * 60 * 60_000,
+        destinationDecision: 'manual', destinationManual: 'OK Tire Burrard',
+        followUp: { state: 'booked', triggerAt: Date.now() - 5 * 24 * 60 * 60_000, appointmentSummary: 'Wheel alignment · Egban Autos' } };
+    default:
+      return base;
+  }
+}
+
+// TODO: When wiring real AI extraction, replace AddServiceProcessingScreen's
+// `buildExtractedDraft` with an API call (e.g. Anthropic Messages API with
+// vision for photos, or text input for paste/voice transcripts). For now
+// the prototype's mock variants are driven off the `extractionConfidence`
+// tweak so demos can flip between high/low/fail.
+export function buildExtractedDraft(_mode: ServiceDraft['mode'], confidence: ExtractionConfidence): Partial<ServiceDraft> {
+  if (confidence === 'high') {
+    return {
+      confidence: 'high',
+      missingFields: [],
+      fields: {
+        date: '2026-05-18',
+        shop: 'Egban Autos',
+        shopId: 'egban',
+        what: 'Oil change + tire rotation',
+        category: 'oil',
+        mileage: 84120,
+        cost: 124,
+        notes: '',
+        lineItems: [
+          { label: 'Mobil 1 Synthetic Blend 5W-30 (5 qt)', price: 38 },
+          { label: 'OEM oil filter — Toyota 90915-YZZF2', price: 12 },
+          { label: 'Tire rotation + balance', price: 55 },
+          { label: 'Labor', price: 19 },
+        ],
+      },
+    };
+  }
+  if (confidence === 'low') {
+    return {
+      confidence: 'low',
+      missingFields: ['date', 'shop'],
+      fields: {
+        date: '',
+        shop: '',
+        shopId: null,
+        what: 'Brake service',
+        category: 'brake',
+        mileage: 0,
+        cost: 340,
+        notes: '',
+        lineItems: [
+          { label: 'Brake pads — front', price: 165 },
+          { label: 'Labor', price: 145 },
+          { label: 'Hardware kit', price: 30 },
+        ],
+      },
+    };
+  }
+  return {
+    confidence: 'fail',
+    missingFields: ['date', 'shop', 'what', 'cost', 'mileage'],
+    fields: {
+      date: '', shop: '', shopId: null, what: '', category: 'other',
+      mileage: 0, cost: 0, notes: '', lineItems: [],
+    },
+    failed: true,
+  };
+}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 export function findDeal(deals: Deal[], dealId: string): Deal | undefined {
@@ -198,6 +351,12 @@ interface StoreValue {
   shops: Shop[];
   linkedShops: Shop[];
   serviceLog: ServiceEntry[];
+  addServiceEntry: (entry: Partial<ServiceEntry> & { what: string; date: string }) => string;
+  serviceDraft: ServiceDraft | null;
+  setServiceDraft: (draft: ServiceDraft | null) => void;
+  tweaks: Tweaks;
+  setTweak: <K extends keyof Tweaks>(key: K, value: Tweaks[K]) => void;
+  roadsideEvent: RoadsideEvent | null;
   claims: Claim[];
   claimDeal: (dealId: string) => Promise<string>;
   advanceClaim: (claimId: string, toStatus: 'contacted' | 'confirmed' | 'expired') => Promise<void>;
@@ -222,7 +381,41 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [serviceLog,          setServiceLog]          = useState<ServiceEntry[]>([]);
   const [claims,              setClaims]              = useState<Claim[]>([]);
   const [appointments,        setAppointments]        = useState<Appointment[]>([]);
+  const [serviceDraft,        setServiceDraft]        = useState<ServiceDraft | null>(null);
+  const [tweaks,              setTweaks]              = useState<Tweaks>({
+    extractionConfidence: 'high',
+    roadsideScenario: 'idle',
+    pushNotifPreview: false,
+  });
   const [, setTick] = useState(0);
+
+  const setTweak = useCallback(<K extends keyof Tweaks>(key: K, value: Tweaks[K]) => {
+    setTweaks(prev => ({ ...prev, [key]: value }));
+  }, []);
+
+  const addServiceEntry = useCallback((entry: Partial<ServiceEntry> & { what: string; date: string }): string => {
+    const id = 's-' + Date.now();
+    const full: ServiceEntry = {
+      id,
+      date: entry.date,
+      mileage: entry.mileage ?? 0,
+      what: entry.what,
+      cost: entry.cost ?? null,
+      shop: entry.shop ?? null,
+      shopId: entry.shopId ?? null,
+      via: entry.via ?? 'manual',
+      notes: entry.notes ?? '',
+      category: entry.category ?? 'other',
+    };
+    setServiceLog(prev => [full, ...prev].sort((a, b) => b.date.localeCompare(a.date)));
+    // TODO: when BACKEND_LIVE, also persist via client.models.ServiceLogEntry.create(...)
+    return id;
+  }, []);
+
+  // ─── Roadside event derived from the active scenario tweak ──────────────
+  const roadsideEvent = useMemo<RoadsideEvent | null>(() => {
+    return buildRoadsideEvent(tweaks.roadsideScenario);
+  }, [tweaks.roadsideScenario]);
 
   // Tick every second for claim countdown
   useEffect(() => {
@@ -439,7 +632,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     loaded, error,
     vehicle, vehicles, setVehicle, addVehicle, updateVehicle,
     setPrimaryVehicle, unlockedHistoryIds, unlockHistory,
-    deals, shops, linkedShops, serviceLog,
+    deals, shops, linkedShops, serviceLog, addServiceEntry,
+    serviceDraft, setServiceDraft,
+    tweaks, setTweak, roadsideEvent,
     claims, claimDeal, advanceClaim, cancelClaim,
     appointments, bookAppointment, cancelAppointment,
     now: Date.now(),

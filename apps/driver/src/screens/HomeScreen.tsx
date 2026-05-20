@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import type { GoFn } from '../types';
 import { useStore, findDeal, findShop } from '../store';
 import { TopBar, DealCard, Pill, BottomNav, BackArrow } from '../components';
+import { RoadsideSosCard, FollowUpCard } from './RoadsideComponents';
 
 // ─── Notifications sheet ──────────────────────────────
 type NotifTone = 'brand' | 'success' | 'warning' | 'neutral';
@@ -290,9 +291,9 @@ export function HomeScreen({ go }: { go: GoFn }) {
 
       <div className="dv-section">
         <div className="dv-actions">
-          <div className="dv-action" onClick={() => go('deals')}>
+          <div className="dv-action" onClick={() => go('add-service')}>
             <div className="ic"><img src="/assets/icons/extra/lightbulb-02.svg" alt=""/></div>
-            <div className="lbl">Find deals</div>
+            <div className="lbl">Add service</div>
           </div>
           <div className="dv-action" onClick={() => go('claims')}>
             <div className="ic"><img src="/assets/icons/revv/check-done-01.svg" alt=""/></div>
@@ -323,6 +324,9 @@ export function HomeScreen({ go }: { go: GoFn }) {
           <div className="arrow"><BackArrow/></div>
         </div>
       )}
+
+      <RoadsideSosCard go={go}/>
+      <FollowUpCard go={go}/>
 
       <div className="dv-section">
         <h4>Deals near you<span className="more" onClick={() => go('deals')}>See all</span></h4>
